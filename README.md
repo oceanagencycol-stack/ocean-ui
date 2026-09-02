@@ -11,12 +11,15 @@ Copie `src/` a su proyecto y enlace:
 
 ```html
 <link rel="stylesheet" href="src/ocean.css">
+<link rel="stylesheet" href="src/ocean-tipografia.css">
+<link rel="stylesheet" href="src/ocean-fondos.css">
 <script src="src/ocean-motion.js"></script>
 <script src="src/ocean-sound.js"></script>
 <script src="src/ocean-ui.js"></script>
 <!-- opcionales -->
 <script src="src/ocean-live.js"></script>
 <script src="src/ocean-auth.js"></script>
+<script src="src/ocean-texto.js"></script>
 <script>OceanUI.iniciar();</script>
 ```
 
@@ -89,6 +92,36 @@ acceso.verificar = async ({usuario, clave}) => {
 en consola. Un valor por defecto permisivo en un control de acceso es un fallo, no una
 comodidad.
 
+### Tipografía (`ocean-tipografia.css` + `ocean-texto.js`)
+Escala de diez pasos donde **cada paso trae su propio tracking**, siguiendo la regla
+óptica: a mayor tamaño menos aire entre letras, a menor tamaño más, y las mayúsculas
+siempre más que las minúsculas.
+
+Seis **voces** cerradas —display, texto y dato ya emparejados— aplicables con
+`data-ot-voz="editorial|industrial|boticario|cuaderno|terminal|sistema"`.
+
+Nueve **tratamientos de capa**: fantasma, contorno, marcador, sangrado, apilado,
+vertical, degradado, capitular y ajuste al ancho.
+
+```js
+OceanTexto.arco(el, {grados:150, radio:230});   // texto sobre curva con textPath
+OceanTexto.porLetras(el);                        // divide en <span> con --i por letra
+OceanTexto.trackingOptico(el);                   // la regla, sobre cualquier tamaño
+OceanTexto.ajustar(el);                          // llena el ancho por búsqueda binaria
+OceanTexto.atarViudas();                         // impide la última palabra huérfana
+```
+
+Donde la fuente trae eje `opsz`, `font-optical-sizing: auto` hace que el navegador
+redibuje la letra según el cuerpo. Un titular no es texto grande: es otro dibujo.
+
+### Fondos (`ocean-fondos.css`)
+Doce superficies generadas por código —gradientes, SVG en línea y filtros—. Ni una
+imagen, cero peticiones de red.
+
+`of-grano` · `of-papel` · `of-malla` · `of-aurora` · `of-reticula` · `of-puntos` ·
+`of-rayado` · `of-halo` · `of-vineta` · `of-cono`, más cuatro recetas apiladas:
+`of-noche`, `of-taller`, `of-campo`, `of-brasa`.
+
 ### Sonido (`ocean-sound.js`)
 Doce sonidos sintetizados con osciladores y ruido filtrado: `roce`, `toque`, `muesca`,
 `abrir`, `cerrar`, `bien`, `mal`, `aviso`, `paso`, `morph`, `desliz`, `tic`, `himno`.
@@ -124,6 +157,8 @@ originaron cada componente y el porqué de cada decisión.
   catálogo de sonidos.
 - `live.html` — actividades en vivo, medidores, isla de borde y el sistema de acceso
   completo con registro de estados.
+- `tipografia.html` — escala con su tracking, las seis voces intercambiables, los nueve
+  tratamientos de capa y los doce fondos.
 
 ---
 

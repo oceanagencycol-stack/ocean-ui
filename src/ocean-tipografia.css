@@ -1,0 +1,248 @@
+/* =========================================================================
+   OCEAN TIPOGRAFÍA
+   Un sistema, no una lista de tamaños.
+
+   Tres reglas que lo gobiernan y de las que sale todo lo demás:
+
+   1. TRACKING ÓPTICO. A mayor tamaño, el ojo percibe más aire entre letras,
+      así que hay que apretar. A menor tamaño, lo contrario. Las mayúsculas
+      siempre piden más aire que las minúsculas. Aquí eso no se decide a mano
+      en cada uso: está horneado en la escala.
+
+   2. TAMAÑO ÓPTICO REAL. Donde la fuente es variable y trae eje `opsz`, el
+      navegador ajusta contraste y proporciones solo con `font-optical-sizing`.
+      Un titular no es texto grande: es otro dibujo de la misma letra.
+
+   3. UNA VOZ POR PROYECTO. Las combinaciones no se improvisan. Abajo hay seis
+      voces cerradas, cada una con display, texto y dato ya emparejados.
+   ========================================================================= */
+
+/* ------------------------------------------------------------------ escala
+   Razón 1.25 (tercera mayor) para los pasos de texto y 1.333 (cuarta) para
+   los de display: el salto entre cuerpo y titular tiene que sentirse, no
+   deslizarse. Cada paso trae su propio tracking y su propia altura de línea.
+   Cada valor usa clamp() para no necesitar puntos de quiebre.
+*/
+:root{
+  --ot-00:clamp(.66rem,.62rem + .18vw,.72rem);   /* microcopy, sellos */
+  --ot-0 :clamp(.76rem,.72rem + .2vw ,.84rem);   /* pie, metadatos */
+  --ot-1 :clamp(.88rem,.84rem + .22vw,.95rem);   /* interfaz */
+  --ot-2 :clamp(1rem,.95rem + .26vw,1.12rem);    /* cuerpo */
+  --ot-3 :clamp(1.12rem,1.04rem + .4vw,1.35rem); /* entradilla */
+  --ot-4 :clamp(1.4rem,1.2rem + .9vw,2rem);      /* subtítulo */
+  --ot-5 :clamp(1.85rem,1.5rem + 1.7vw,3rem);    /* título de sección */
+  --ot-6 :clamp(2.4rem,1.8rem + 3vw,4.4rem);     /* titular */
+  --ot-7 :clamp(3.1rem,2rem + 5.4vw,6.8rem);     /* portada */
+  --ot-8 :clamp(4rem,2rem + 10vw,12rem);         /* tipografía como imagen */
+
+  /* tracking por paso: negativo arriba, positivo abajo. Es la regla óptica. */
+  --ot-tr-00:.10em;  --ot-tr-0:.06em;  --ot-tr-1:.01em;   --ot-tr-2:0;
+  --ot-tr-3:-.008em; --ot-tr-4:-.018em;--ot-tr-5:-.028em;
+  --ot-tr-6:-.036em; --ot-tr-7:-.042em;--ot-tr-8:-.05em;
+
+  /* altura de línea: se cierra a medida que el cuerpo crece */
+  --ot-lh-suelta:1.7; --ot-lh-texto:1.6; --ot-lh-media:1.35;
+  --ot-lh-corta:1.12; --ot-lh-titulo:1.02; --ot-lh-portada:.94;
+
+  /* medida de línea: el ancho cómodo de lectura */
+  --ot-medida:66ch; --ot-medida-corta:46ch; --ot-medida-larga:78ch;
+}
+
+/* ------------------------------------------------------- las seis voces
+   Cada voz define --ot-display, --ot-texto y --ot-dato. Se aplica poniendo
+   data-ot-voz="…" en <html> o en cualquier contenedor.
+   Todas usan familias variables disponibles en Google Fonts.
+*/
+
+/* Editorial — grotesca con carácter para display, humanista para leer.
+   Bricolage trae opsz 12–96: el titular y el cuerpo son dibujos distintos. */
+[data-ot-voz="editorial"]{
+  --ot-display:'Bricolage Grotesque',system-ui,sans-serif;
+  --ot-texto:'Instrument Sans',system-ui,sans-serif;
+  --ot-dato:'JetBrains Mono',ui-monospace,monospace;
+  --ot-display-peso:700; --ot-display-tr:-.035em;
+}
+
+/* Industrial — la de Belter y Oyee: sans geométrica ancha, muy legible,
+   con el dato en mono condensada. Para producto y B2B. */
+[data-ot-voz="industrial"]{
+  --ot-display:'Archivo',system-ui,sans-serif;
+  --ot-texto:'Archivo',system-ui,sans-serif;
+  --ot-dato:'Martian Mono',ui-monospace,monospace;
+  --ot-display-peso:800; --ot-display-tr:-.03em;
+}
+
+/* Boticario — serif de contraste alto con swashes. Fraunces trae los ejes
+   SOFT y WONK: WONK activa alternates irregulares, que son justamente los
+   remates y colas de las referencias vintage. */
+[data-ot-voz="boticario"]{
+  --ot-display:'Fraunces',Georgia,serif;
+  --ot-texto:'Instrument Sans',system-ui,sans-serif;
+  --ot-dato:'JetBrains Mono',ui-monospace,monospace;
+  --ot-display-peso:600; --ot-display-tr:-.022em;
+  --ot-display-var:"SOFT" 40,"WONK" 1;
+}
+
+/* Cuaderno — manuscrita para el acento, grotesca limpia para el resto.
+   El acento manuscrito nunca lleva más de seis palabras. */
+[data-ot-voz="cuaderno"]{
+  --ot-display:'Schibsted Grotesk',system-ui,sans-serif;
+  --ot-texto:'Schibsted Grotesk',system-ui,sans-serif;
+  --ot-dato:'JetBrains Mono',ui-monospace,monospace;
+  --ot-mano:'Caveat',cursive;
+  --ot-display-peso:600; --ot-display-tr:-.03em;
+}
+
+/* Terminal — todo monoespaciado, para paneles y herramientas internas.
+   Recursive trae el eje CASL: de geométrico a manuscrito sin cambiar de fuente. */
+[data-ot-voz="terminal"]{
+  --ot-display:'Recursive',ui-monospace,monospace;
+  --ot-texto:'Recursive',ui-monospace,monospace;
+  --ot-dato:'Recursive',ui-monospace,monospace;
+  --ot-display-peso:800; --ot-display-tr:-.02em;
+  --ot-display-var:"MONO" 1,"CASL" 0;
+}
+
+/* Sistema — sin descargar nada. La red de respaldo cuando el peso importa
+   más que el carácter. */
+[data-ot-voz="sistema"]{
+  --ot-display:system-ui,-apple-system,'Segoe UI',sans-serif;
+  --ot-texto:system-ui,-apple-system,'Segoe UI',sans-serif;
+  --ot-dato:ui-monospace,'SF Mono',monospace;
+  --ot-display-peso:700; --ot-display-tr:-.028em;
+}
+
+/* --------------------------------------------------------------- aplicación
+   El eje opsz lo maneja el navegador: no hay que tocarlo a mano.        */
+.ot-d1,.ot-d2,.ot-d3,.ot-d4,.ot-portada,.ot-cartel{
+  font-family:var(--ot-display,system-ui);
+  font-weight:var(--ot-display-peso,700);
+  font-optical-sizing:auto;
+  font-variation-settings:var(--ot-display-var,normal);
+  margin:0;text-wrap:balance;
+}
+.ot-cartel  {font-size:var(--ot-8);letter-spacing:var(--ot-tr-8);line-height:var(--ot-lh-portada)}
+.ot-portada {font-size:var(--ot-7);letter-spacing:var(--ot-tr-7);line-height:var(--ot-lh-portada)}
+.ot-d1      {font-size:var(--ot-6);letter-spacing:var(--ot-tr-6);line-height:var(--ot-lh-titulo)}
+.ot-d2      {font-size:var(--ot-5);letter-spacing:var(--ot-tr-5);line-height:var(--ot-lh-corta)}
+.ot-d3      {font-size:var(--ot-4);letter-spacing:var(--ot-tr-4);line-height:var(--ot-lh-corta)}
+.ot-d4      {font-size:var(--ot-3);letter-spacing:var(--ot-tr-3);line-height:var(--ot-lh-media);font-weight:600}
+
+.ot-entradilla{font-family:var(--ot-texto,system-ui);font-size:var(--ot-3);
+  letter-spacing:var(--ot-tr-3);line-height:var(--ot-lh-media);max-width:var(--ot-medida-corta);
+  font-optical-sizing:auto;text-wrap:pretty;margin:0}
+.ot-cuerpo{font-family:var(--ot-texto,system-ui);font-size:var(--ot-2);
+  letter-spacing:var(--ot-tr-2);line-height:var(--ot-lh-texto);max-width:var(--ot-medida);
+  font-optical-sizing:auto;text-wrap:pretty}
+.ot-ui{font-family:var(--ot-texto,system-ui);font-size:var(--ot-1);letter-spacing:var(--ot-tr-1)}
+.ot-pie{font-family:var(--ot-texto,system-ui);font-size:var(--ot-0);letter-spacing:var(--ot-tr-0);
+  line-height:var(--ot-lh-media)}
+
+/* Etiqueta en mayúsculas: es donde más se nota la regla del tracking.
+   Sin el +0.14em las mayúsculas se pegan y el bloque se lee como un ladrillo. */
+.ot-etiqueta{font-family:var(--ot-dato,monospace);font-size:var(--ot-00);
+  letter-spacing:var(--ot-tr-00);text-transform:uppercase;font-weight:500;line-height:1.4}
+.ot-dato{font-family:var(--ot-dato,monospace);font-variant-numeric:tabular-nums;
+  letter-spacing:0;font-size:var(--ot-1)}
+.ot-mano{font-family:var(--ot-mano,cursive);font-weight:600;letter-spacing:0}
+
+/* números que no bailan al cambiar de valor */
+.ot-cifra{font-variant-numeric:tabular-nums;letter-spacing:var(--ot-tr-6);
+  font-family:var(--ot-display,system-ui);font-weight:var(--ot-display-peso,700);
+  font-size:var(--ot-6);line-height:.9}
+
+/* =============================================== tratamientos de capa ======
+   La diferencia entre "texto grande" y "tipografía": lo que pasa detrás,
+   encima y alrededor de la palabra.                                       */
+
+/* 1. FANTASMA — el mismo texto repetido detrás, gigante y casi invisible.
+      Da profundidad sin añadir un elemento decorativo ajeno al contenido. */
+.ot-fantasma{position:relative;isolation:isolate}
+.ot-fantasma::before{
+  content:attr(data-ot-eco);
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(var(--eco-esc,1.9));
+  font-family:var(--ot-display,system-ui);font-weight:var(--ot-display-peso,700);
+  font-size:var(--ot-6);letter-spacing:var(--ot-tr-8);white-space:nowrap;
+  color:currentColor;opacity:var(--eco-op,.045);z-index:-1;pointer-events:none;
+  line-height:1;text-transform:inherit;
+}
+
+/* 2. CONTORNO — la letra vacía. Funciona sobre fotografía, donde el relleno
+      taparía la imagen. Se combina con una palabra rellena al lado. */
+/*  Cuidado: -webkit-text-stroke con currentColor no funciona junto a
+    color:transparent — el trazo hereda el mismo transparente. El color del
+    trazo tiene que ser explícito, por eso existe --contorno-color.        */
+.ot-contorno{
+  color:transparent;
+  -webkit-text-stroke:var(--contorno-gr,1.6px) var(--contorno-color,#fff);
+  paint-order:stroke fill;
+}
+[data-o-tema="claro"] .ot-contorno,
+.ot-contorno--tinta{--contorno-color:#0A0E14}
+.ot-relleno{-webkit-text-stroke:0;color:inherit}
+
+/* 3. MARCADOR — el resaltado de Oyee: la palabra clave va dentro de una
+      píldora. Tres variantes para que el párrafo tenga ritmo y no se vuelva
+      un semáforo. */
+.ot-marca{display:inline-block;padding:.08em .48em;border-radius:999px;
+  line-height:inherit;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.ot-marca--solido{background:var(--ot-marca-bg,currentColor);color:var(--ot-marca-tx,#fff)}
+.ot-marca--linea {border:1.5px solid currentColor;background:transparent}
+.ot-marca--claro {background:var(--ot-marca-claro,rgba(255,255,255,.92));color:var(--ot-marca-tx2,#0A0E14)}
+/* subrayado orgánico, dibujado, no un border-bottom recto */
+.ot-marca--trazo{background-image:linear-gradient(currentColor,currentColor);
+  background-size:100% .12em;background-position:0 92%;background-repeat:no-repeat;
+  padding:0 .06em;border-radius:0}
+
+/* 4. SANGRADO — la palabra se sale del contenedor. Comunica que el contenido
+      no cabe, que hay más. Solo una por pantalla. */
+.ot-sangra{margin-inline:calc(var(--sangra,4vw) * -1);max-width:none}
+.ot-sangra--der{margin-right:calc(var(--sangra,8vw) * -1)}
+.ot-sangra--izq{margin-left:calc(var(--sangra,8vw) * -1)}
+
+/* 5. APILADO — líneas muy juntas, cada una con su propio tamaño.
+      Es la composición de portada de las referencias de fuente. */
+.ot-apilado{display:flex;flex-direction:column;line-height:.88}
+.ot-apilado > *{margin:0;display:block}
+.ot-apilado > :nth-child(even){align-self:flex-end;text-align:right}
+
+/* 6. ROTADO — etiqueta vertical al costado. Ancla la composición sin ocupar
+      espacio de lectura. */
+.ot-vertical{writing-mode:vertical-rl;text-orientation:mixed}
+.ot-vertical--inv{writing-mode:vertical-rl;transform:rotate(180deg)}
+
+/* 7. DEGRADADO EN EL TEXTO — solo en una palabra, nunca en un párrafo. */
+.ot-degradado{background:linear-gradient(var(--grad-ang,110deg),
+  var(--grad-a,#7C5CFF),var(--grad-b,#22D3EE));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* 8. CAPITULAR — la letra inicial que ancla un bloque de texto largo. */
+.ot-capitular::first-letter{
+  float:left;font-family:var(--ot-display,system-ui);font-weight:var(--ot-display-peso,700);
+  font-size:3.1em;line-height:.82;padding-right:.08em;margin-top:.06em;
+  color:var(--ot-capitular-color,currentColor)}
+
+/* 9. VIUDA ATADA — impide que la última palabra quede sola en su línea.
+      Se aplica desde JS con ocean-texto.js, pero la clase existe por si se
+      escribe el &nbsp; a mano. */
+.ot-sin-viudas{text-wrap:balance}
+
+/* ------------------------------------------------------------ modificadores */
+.ot-alto  {line-height:var(--ot-lh-suelta)}
+.ot-bajo  {line-height:var(--ot-lh-titulo)}
+.ot-aire  {letter-spacing:.16em}   /* solo para mayúsculas cortas */
+.ot-junto {letter-spacing:-.05em}  /* solo para display muy grande */
+.ot-medida{max-width:var(--ot-medida)}
+.ot-medida--corta{max-width:var(--ot-medida-corta)}
+.ot-medida--larga{max-width:var(--ot-medida-larga)}
+.ot-centro{text-align:center;margin-inline:auto}
+.ot-equilibra{text-wrap:balance}
+.ot-bonito{text-wrap:pretty}
+
+/* GRAD: cambia el peso aparente sin cambiar el ancho. Cura el defecto
+   clásico de que el botón se ensancha al pasar el puntero. Requiere una
+   fuente con ese eje, como Roboto Flex. */
+.ot-grad{transition:font-variation-settings var(--o-t-rapido,220ms) ease}
+.ot-grad:hover{font-variation-settings:"GRAD" 120}
+
+@media(prefers-reduced-motion:reduce){.ot-grad{transition:none}}

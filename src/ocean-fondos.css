@@ -1,0 +1,219 @@
+/* =========================================================================
+   OCEAN FONDOS
+   Superficies generadas por código. Ni una imagen de banco, ni un JPG pesado.
+
+   El principio: un fondo plano hace que todo lo que va encima parezca pegado.
+   Un fondo con estructura —grano, malla, retícula— le da al contenido un
+   plano sobre el cual apoyarse. La diferencia entre "tiene fondo de color"
+   y "está impreso sobre algo".
+
+   Todo se compone con gradientes, SVG en línea y filtros. Cero peticiones.
+   ========================================================================= */
+
+/* ------------------------------------------------------------------ tokens */
+:root{
+  --of-grano:.05;         /* opacidad del grano; .03–.09 es el rango útil */
+  --of-grano-esc:180;     /* tamaño del azulejo de ruido en px */
+  --of-vineta:.34;        /* oscurecimiento de los bordes */
+}
+
+/* ================================================================== grano
+   La capa que evita que un color plano parezca plástico. Va encima de todo
+   lo demás, en modo overlay, y siempre por debajo del contenido.        */
+.of-grano{position:relative;isolation:isolate}
+.of-grano::after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  opacity:var(--of-grano);mix-blend-mode:overlay;border-radius:inherit;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.of-grano > *{position:relative;z-index:1}
+.of-grano--fuerte{--of-grano:.10}
+.of-grano--sutil{--of-grano:.028}
+
+/* ============================================================ papel
+   Fibra de papel: ruido de baja frecuencia más un tinte cálido.
+   Para superficies que deben sentirse impresas.                        */
+.of-papel{
+  background-color:var(--of-papel-bg,#F3F0E9);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.035 .9' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='.42'/%3E%3C/svg%3E");
+  background-blend-mode:multiply;
+}
+.of-papel--oscuro{--of-papel-bg:#1A1712}
+
+/* ============================================================= malla
+   Cuatro focos de color desenfocados. Es el fondo que más rinde: da
+   profundidad cromática sin dibujar nada reconocible.                   */
+.of-malla{
+  background-color:var(--of-malla-base,#080B10);
+  background-image:
+    radial-gradient(60% 65% at 12% 8%,  var(--of-malla-1,#2A1D6B) 0%, transparent 62%),
+    radial-gradient(55% 60% at 92% 14%, var(--of-malla-2,#0C4A5C) 0%, transparent 58%),
+    radial-gradient(58% 62% at 78% 88%, var(--of-malla-3,#4A1D52) 0%, transparent 60%),
+    radial-gradient(50% 55% at 22% 92%, var(--of-malla-4,#12325E) 0%, transparent 56%);
+}
+/* paletas listas, tomadas de las referencias de marca */
+.of-malla--lima{--of-malla-base:#06251A;--of-malla-1:#0E4A2B;--of-malla-2:#2D6B14;
+  --of-malla-3:#0A3D24;--of-malla-4:#164A18}
+.of-malla--tierra{--of-malla-base:#171009;--of-malla-1:#4A2A12;--of-malla-2:#5C3A14;
+  --of-malla-3:#3A1D12;--of-malla-4:#2A1A0C}
+.of-malla--salvia{--of-malla-base:#EDEAE0;--of-malla-1:#C8D6C4;--of-malla-2:#E3D9C2;
+  --of-malla-3:#D6C9B4;--of-malla-4:#CFDCD2}
+.of-malla--brasa{--of-malla-base:#120A08;--of-malla-1:#5C1A0C;--of-malla-2:#7A2E10;
+  --of-malla-3:#3A1208;--of-malla-4:#4A2410}
+
+/* ====================================================== aurora animada
+   La malla, pero respirando. Cada foco se mueve a su propio ritmo, así que
+   el patrón nunca se repite de forma visible. Se detiene con reduced-motion. */
+.of-aurora{position:relative;overflow:hidden;background:var(--of-malla-base,#080B10);isolation:isolate}
+.of-aurora > *{position:relative;z-index:2}
+.of-aurora::before{
+  content:"";position:absolute;inset:-30%;z-index:0;filter:blur(90px);opacity:.62;
+  background:
+    radial-gradient(34% 42% at 22% 26%, var(--of-malla-1,#2A1D6B) 0%, transparent 66%),
+    radial-gradient(30% 38% at 78% 22%, var(--of-malla-2,#0C4A5C) 0%, transparent 62%),
+    radial-gradient(32% 40% at 68% 80%, var(--of-malla-3,#4A1D52) 0%, transparent 64%),
+    radial-gradient(28% 36% at 26% 76%, var(--of-malla-4,#12325E) 0%, transparent 60%);
+  animation:of-derivar 34s ease-in-out infinite alternate;
+}
+@keyframes of-derivar{
+  0%  {transform:translate3d(0,0,0) scale(1) rotate(0deg)}
+  50% {transform:translate3d(3%,-4%,0) scale(1.14) rotate(4deg)}
+  100%{transform:translate3d(-4%,3%,0) scale(1.05) rotate(-3deg)}
+}
+
+/* ======================================================= retícula técnica
+   Cuadrícula fina con líneas maestras cada cinco. Comunica precisión.
+   Va bien detrás de datos, planos y catálogos técnicos.                 */
+.of-reticula{
+  background-color:var(--of-ret-bg,#0A0E14);
+  background-image:
+    linear-gradient(var(--of-ret-linea,rgba(255,255,255,.045)) 1px,transparent 1px),
+    linear-gradient(90deg,var(--of-ret-linea,rgba(255,255,255,.045)) 1px,transparent 1px),
+    linear-gradient(var(--of-ret-maestra,rgba(255,255,255,.09)) 1px,transparent 1px),
+    linear-gradient(90deg,var(--of-ret-maestra,rgba(255,255,255,.09)) 1px,transparent 1px);
+  background-size:var(--of-ret,26px) var(--of-ret,26px),
+                  var(--of-ret,26px) var(--of-ret,26px),
+                  calc(var(--of-ret,26px)*5) calc(var(--of-ret,26px)*5),
+                  calc(var(--of-ret,26px)*5) calc(var(--of-ret,26px)*5);
+}
+.of-reticula--claro{--of-ret-bg:#F5F6F8;--of-ret-linea:rgba(10,14,20,.05);
+  --of-ret-maestra:rgba(10,14,20,.10)}
+
+/* ============================================================ puntos
+   Retícula de puntos. Más ligera que la cuadrícula, buena bajo tarjetas. */
+.of-puntos{
+  background-color:var(--of-pt-bg,#0A0E14);
+  background-image:radial-gradient(var(--of-pt,rgba(255,255,255,.10)) 1.1px,transparent 1.1px);
+  background-size:var(--of-pt-esc,22px) var(--of-pt-esc,22px);
+}
+.of-puntos--claro{--of-pt-bg:#F5F6F8;--of-pt:rgba(10,14,20,.13)}
+
+/* ======================================================= líneas diagonales
+   Rayado a 45°. Para zonas de aviso, cintas y bordes de sección.        */
+.of-rayado{
+  background-image:repeating-linear-gradient(45deg,
+    var(--of-raya,rgba(255,255,255,.06)) 0 2px, transparent 2px 11px);
+}
+
+/* ============================================================ halo
+   Un solo foco de luz detrás del contenido. Cuando la malla es demasiado. */
+.of-halo{position:relative;isolation:isolate}
+.of-halo::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(var(--of-halo-tam,60% 55%) at var(--of-halo-x,50%) var(--of-halo-y,0%),
+             var(--of-halo-color,rgba(124,92,255,.32)) 0%, transparent 68%);
+}
+
+/* ============================================================ viñeta
+   Cierra la composición por los bordes. Sutil o no se nota, fuerte y
+   parece un filtro de Instagram: .34 es el punto medio.                 */
+.of-vineta{position:relative;isolation:isolate}
+.of-vineta::after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:inherit;
+  box-shadow:inset 0 0 clamp(60px,12vw,180px) rgba(0,0,0,var(--of-vineta));
+}
+
+/* ====================================================== degradado cónico
+   El fondo de "escaneo" o "carga". Un cono girando, muy desenfocado.    */
+.of-cono{position:relative;overflow:hidden;isolation:isolate}
+.of-cono::before{
+  content:"";position:absolute;inset:-50%;z-index:0;filter:blur(60px);opacity:.5;
+  background:conic-gradient(from 0deg,
+    var(--of-cono-1,#7C5CFF), var(--of-cono-2,#22D3EE),
+    var(--of-cono-3,#8CC63E), var(--of-cono-1,#7C5CFF));
+  animation:of-girar 22s linear infinite;
+}
+.of-cono > *{position:relative;z-index:1}
+@keyframes of-girar{to{transform:rotate(360deg)}}
+
+/* ================================================ capas apiladas (recetas)
+   Los fondos que de verdad se usan son combinaciones. Estas cuatro cubren
+   casi todo, y se aplican con una sola clase.                            */
+
+/* Noche editorial: malla + grano + viñeta. El fondo por defecto de Ocean. */
+.of-noche{
+  background-color:#080B10;
+  background-image:
+    radial-gradient(60% 65% at 12% 8%,  #2A1D6B 0%, transparent 62%),
+    radial-gradient(55% 60% at 92% 14%, #0C4A5C 0%, transparent 58%),
+    radial-gradient(58% 62% at 78% 88%, #4A1D52 0%, transparent 60%),
+    radial-gradient(50% 55% at 22% 92%, #12325E 0%, transparent 56%);
+  position:relative;isolation:isolate;color:#EDF1F6;
+}
+.of-noche::after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.of-noche > *{position:relative;z-index:1}
+
+/* Taller: papel claro + retícula tenue. Para documentación y catálogos. */
+.of-taller{
+  background-color:#F3F0E9;
+  background-image:
+    linear-gradient(rgba(10,14,20,.038) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(10,14,20,.038) 1px,transparent 1px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.04 .85' numOctaves='4'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='.3'/%3E%3C/svg%3E");
+  background-size:28px 28px,28px 28px,300px 300px;
+  background-blend-mode:normal,normal,multiply;
+  color:#141A22;
+}
+
+/* Campo: verde profundo con halo lima. La paleta de Belter y Oyee. */
+.of-campo{
+  background-color:#05251A;
+  background-image:
+    radial-gradient(70% 60% at 20% 0%,   rgba(140,198,62,.22) 0%, transparent 62%),
+    radial-gradient(60% 55% at 88% 30%,  rgba(20,120,70,.34) 0%, transparent 58%),
+    radial-gradient(55% 50% at 50% 100%, rgba(10,70,45,.5) 0%, transparent 60%);
+  color:#EAF5EC;
+}
+
+/* Brasa: negro cálido con foco naranja. Para producto y comida. */
+.of-brasa{
+  background-color:#120A08;
+  background-image:
+    radial-gradient(65% 60% at 78% 12%, rgba(255,122,26,.24) 0%, transparent 60%),
+    radial-gradient(55% 55% at 14% 82%, rgba(122,46,16,.42) 0%, transparent 58%);
+  color:#F7EFE8;
+}
+
+/* ------------------------------------------------------------- bordes vivos
+   Un filo de luz recorriendo el borde superior. Marca la sección activa
+   sin añadir un elemento visible.                                       */
+.of-filo{position:relative}
+.of-filo::before{
+  content:"";position:absolute;left:0;right:0;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,
+    var(--of-filo-color,rgba(255,255,255,.5)) 50%,transparent);
+}
+
+/* ------------------------------------------------------------ accesibilidad */
+@media(prefers-reduced-motion:reduce){
+  .of-aurora::before,.of-cono::before{animation:none}
+}
+@media(forced-colors:active){
+  .of-grano::after,.of-vineta::after,.of-noche::after{display:none}
+  .of-malla,.of-noche,.of-campo,.of-brasa,.of-taller{background-image:none}
+}

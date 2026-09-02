@@ -234,8 +234,31 @@ const util = {
   vibrar(patron = 8) { if (navigator.vibrate) try { navigator.vibrate(patron); } catch (e) {} },
 };
 
+/* ------------------------------------------------------- ids duplicados
+   Un id repetido no da error en HTML: querySelector devuelve el primero y el
+   código termina hablándole al elemento equivocado. Es silencioso y muy caro
+   de rastrear —costó un fallo de seguridad en <ocean-acceso>—, así que el
+   sistema lo denuncia en cuanto arranca, solo fuera de producción.        */
+function avisarIdsDuplicados(raiz = document) {
+  const local = /^(localhost|127\.|\[::1\]|0\.0\.0\.0)/.test(location.hostname) ||
+                location.protocol === "file:";
+  if (!local) return [];
+  const vistos = new Map(), repes = [];
+  raiz.querySelectorAll("[id]").forEach(el => {
+    const n = (vistos.get(el.id) || 0) + 1;
+    vistos.set(el.id, n);
+    if (n === 2) repes.push(el.id);
+  });
+  if (repes.length) {
+    console.warn("[Ocean] ids duplicados en el documento:", repes,
+      "\nquerySelector devolverá siempre el primero. Renombre los demás.");
+  }
+  return repes;
+}
+
 /* -------------------------------------------------------------------- init */
 function iniciar(raiz = document) {
+  avisarIdsDuplicados(raiz);
   reveals(raiz);
   contadores(raiz);
   parallax(raiz);
@@ -249,5 +272,6 @@ function iniciar(raiz = document) {
 global.OceanMotion = {
   Resorte, agregar, oyentesScroll, reveals, porPalabras, parallax,
   magnetico, tilt, luzViva, contador, contadores, progreso, util, iniciar, reducido,
+  avisarIdsDuplicados,
 };
 })(window);

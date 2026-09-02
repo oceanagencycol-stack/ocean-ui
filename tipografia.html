@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es" data-o-tema="oscuro" data-ot-voz="editorial">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tipografía y fondos — Ocean UI</title>
+<meta name="description" content="Sistema tipográfico con tracking óptico, seis voces emparejadas, tratamientos de capa y fondos generados por código. Parte de Ocean UI.">
+<meta name="theme-color" content="#080B10">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&family=Archivo:wght@400;500;600;800&family=Martian+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700&family=Caveat:wght@500;600;700&family=Recursive:CASL,MONO,wght@0..1,0..1,300..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/ocean.css">
+<link rel="stylesheet" href="src/ocean-tipografia.css">
+<link rel="stylesheet" href="src/ocean-fondos.css">
+<style>
+  html{overflow-x:clip}
+  body{margin:0;font-family:var(--ot-texto);color:#EDF1F6;background:#080B10;
+    -webkit-font-smoothing:antialiased;overflow-x:clip}
+  a{color:inherit;text-decoration:none}
+  code{font-family:var(--ot-dato);font-size:.84em;background:rgba(255,255,255,.09);
+    padding:2px 6px;border-radius:5px}
+  :focus-visible{outline:2px solid #7C5CFF;outline-offset:3px;border-radius:6px}
+  .wrap{max-width:1280px;margin:0 auto;padding-inline:clamp(20px,4.4vw,64px)}
+  .sec{padding:clamp(64px,8vw,130px) 0;position:relative}
+  .cab{position:sticky;top:0;z-index:100;padding:13px 0;background:rgba(8,11,16,.7);
+    backdrop-filter:blur(20px) saturate(1.5);border-bottom:1px solid rgba(255,255,255,.07)}
+  .cab .fila{display:flex;align-items:center;gap:clamp(12px,2.4vw,32px)}
+  .cab nav{display:flex;gap:clamp(10px,1.6vw,24px);margin-left:auto;flex-wrap:wrap}
+  .cab nav a{opacity:.62;transition:opacity .3s}
+  .cab nav a:hover{opacity:1}
+  .marca{display:flex;align-items:center;gap:8px;font-weight:600}
+  .marca i{width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,#7C5CFF,#22D3EE)}
+  .tarj{border:1px solid rgba(255,255,255,.09);border-radius:26px;padding:clamp(20px,2.6vw,34px);
+    background:rgba(255,255,255,.025)}
+  .rejilla{display:grid;gap:16px}
+  .r2{grid-template-columns:repeat(2,1fr)} .r3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:900px){.r2,.r3{grid-template-columns:1fr}}
+  .cabecera{margin-bottom:clamp(30px,4vw,56px)}
+  .cabecera .ot-entradilla{margin-top:20px;color:rgba(237,241,246,.62)}
+  .etq{display:inline-block;color:#22D3EE;margin-bottom:16px;opacity:.85}
+  .esc-fila{display:flex;align-items:baseline;gap:20px;padding:14px 0;
+    border-bottom:1px solid rgba(255,255,255,.07);flex-wrap:wrap}
+  .esc-fila .m{flex:none;width:150px;color:rgba(237,241,246,.42)}
+  @media(max-width:640px){
+    .esc-fila{gap:10px}
+    .esc-fila .m{width:100%}
+    .esc-fila .t{width:100%;flex-basis:100%}
+  }
+  .esc-fila .t{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .voces{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:30px}
+  .voces button{border:1px solid rgba(255,255,255,.18);background:none;color:inherit;
+    border-radius:999px;padding:9px 18px;font:inherit;font-size:.86rem;cursor:pointer;
+    transition:.3s cubic-bezier(.16,1,.3,1)}
+  .voces button:hover{border-color:#7C5CFF;color:#C9BBFF}
+  .voces button[aria-pressed=true]{background:#7C5CFF;border-color:#7C5CFF;color:#fff}
+  .muestra-voz{border-radius:26px;padding:clamp(24px,3.2vw,44px);overflow:hidden}
+  .fondo-demo{height:180px;border-radius:22px;display:grid;place-items:center;
+    border:1px solid rgba(255,255,255,.08)}
+  .fondo-demo span{font-family:var(--ot-dato);font-size:.68rem;letter-spacing:.12em;
+    text-transform:uppercase;opacity:.7}
+  .ot-l{display:inline-block;opacity:0;transform:translateY(.5em) rotate(6deg);
+    animation:letra .6s cubic-bezier(.16,1,.3,1) forwards;
+    animation-delay:calc(var(--i) * 26ms)}
+  @keyframes letra{to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.ot-l{animation:none;opacity:1;transform:none}}
+  .pie{padding:44px 0;border-top:1px solid rgba(255,255,255,.07);
+    display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    color:rgba(237,241,246,.5)}
+  .nota{color:rgba(237,241,246,.5);margin-top:14px;line-height:1.6}
+</style>
+</head>
+<body class="of-noche">
+
+<header class="cab">
+  <div class="wrap fila">
+    <a href="index.html" class="marca"><i></i> Ocean UI</a>
+    <nav>
+      <a href="index.html">Núcleo</a><a href="live.html">Live</a>
+      <a href="#escala">Escala</a><a href="#voces">Voces</a>
+      <a href="#capas">Capas</a><a href="#fondos">Fondos</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===================== PORTADA ===================== -->
+<section class="sec" style="padding-top:clamp(50px,7vw,100px)">
+  <div class="wrap">
+    <span class="ot-etiqueta etq">Ocean UI · sistema tipográfico</span>
+    <div class="ot-apilado" style="margin-bottom:34px">
+      <span class="ot-cartel ot-fantasma" data-ot-letras>Tipografía</span>
+      <span class="ot-cartel ot-degradado" style="--grad-a:#7C5CFF;--grad-b:#22D3EE">con oficio.</span>
+    </div>
+    <p class="ot-entradilla">A mayor tamaño el ojo ve más aire entre letras, así que hay que apretar. A menor tamaño, lo contrario. Aquí esa regla no se aplica a mano en cada uso: está horneada en la escala.</p>
+  </div>
+</section>
+
+<!-- ===================== ESCALA ===================== -->
+<section class="sec" id="escala">
+  <div class="wrap">
+    <div class="cabecera">
+      <span class="ot-etiqueta etq">01 · Escala</span>
+      <h2 class="ot-d1">Nueve pasos, cada uno con su propio tracking.</h2>
+      <p class="ot-entradilla">Razón 1,25 para los pasos de texto y 1,333 para los de display: el salto entre cuerpo y titular tiene que sentirse, no deslizarse. La columna de la izquierda muestra el tracking que cada paso lleva incorporado.</p>
+    </div>
+    <div id="tablaEscala"></div>
+    <p class="nota ot-pie">Donde la fuente trae eje <code>opsz</code>, el navegador ajusta contraste y proporciones solo con <code>font-optical-sizing: auto</code>. Un titular no es texto grande: es otro dibujo de la misma letra.</p>
+  </div>
+</section>
+
+<!-- ===================== VOCES ===================== -->
+<section class="sec" id="voces">
+  <div class="wrap">
+    <div class="cabecera">
+      <span class="ot-etiqueta etq">02 · Voces</span>
+      <h2 class="ot-d1">Seis combinaciones cerradas.</h2>
+      <p class="ot-entradilla">El pareo de fuentes no se improvisa por proyecto. Cada voz trae display, texto y dato ya emparejados, y se aplica con un atributo en el contenedor.</p>
+    </div>
+    <div class="voces" id="listaVoces" role="group"></div>
+    <div class="muestra-voz tarj" id="muestraVoz"></div>
+  </div>
+</section>
+
+<!-- ===================== CAPAS ===================== -->
+<section class="sec" id="capas">
+  <div class="wrap">
+    <div class="cabecera">
+      <span class="ot-etiqueta etq">03 · Tratamientos de capa</span>
+      <h2 class="ot-d1">La diferencia entre texto grande y tipografía.</h2>
+      <p class="ot-entradilla">Lo que pasa detrás, encima y alrededor de la palabra. Nueve tratamientos, cada uno con su regla de uso.</p>
+    </div>
+
+    <div class="rejilla r2">
+      <div class="tarj">
+        <span class="ot-etiqueta etq">.ot-fantasma</span>
+        <div class="ot-fantasma" style="padding:34px 0;text-align:center" data-ot-eco="OCEAN">
+          <span class="ot-d2">Eco de fondo</span>
+        </div>
+        <p class="ot-pie nota">El mismo texto repetido detrás, gigante y casi invisible. Da profundidad sin meter un adorno ajeno al contenido.</p>
+      </div>
+
+      <div class="tarj">
+        <span class="ot-etiqueta etq">.ot-contorno</span>
+        <div style="padding:24px 0;text-align:center">
+          <span class="ot-d2 ot-contorno">Vacío</span>
+          <span class="ot-d2">&nbsp;y lleno</span>
+        </div>
+        <p class="ot-pie nota">La letra hueca funciona sobre fotografía, donde el relleno taparía la imagen. Se combina con una palabra sólida al lado.</p>
+      </div>
+
+      <div class="tarj">
+        <span class="ot-etiqueta etq">.ot-marca</span>
+        <p class="ot-d3" style="line-height:1.7;margin:16px 0">
+          Construya <span class="ot-marca ot-marca--solido" style="--ot-marca-bg:#8CC63E;--ot-marca-tx:#05251A">cultura</span>
+          e impulse el <span class="ot-marca ot-marca--linea">compromiso</span>
+          desde la <span class="ot-marca ot-marca--claro">entrada</span>
+          hasta el <span class="ot-marca ot-marca--trazo">flujo</span>.
+        </p>
+        <p class="ot-pie nota">Cuatro variantes para que el párrafo tenga ritmo. Con una sola, el texto se vuelve un semáforo.</p>
+      </div>
+
+      <div class="tarj">
+        <span class="ot-etiqueta etq">.ot-apilado</span>
+        <div class="ot-apilado" style="padding:12px 0">
+          <span class="ot-d3">Primera línea</span>
+          <span class="ot-d2">segunda</span>
+          <span class="ot-d3">y tercera</span>
+        </div>
+        <p class="ot-pie nota">Líneas muy juntas, cada una con su tamaño, alternando alineación. Es la composición de portada de un espécimen de fuente.</p>
+      </div>
+
+      <div class="tarj" style="text-align:center">
+        <span class="ot-etiqueta etq">data-ot-arco</span>
+        <div style="padding:20px 0;max-width:420px;margin-inline:auto">
+          <div class="ot-d2" data-ot-arco="150" data-ot-radio="230">Texto sobre una curva</div>
+        </div>
+        <p class="ot-pie nota">SVG con <code>textPath</code>. El viewBox se calcula desde el radio y el ángulo, no a ojo: si no, el texto se recorta o queda con aire de sobra.</p>
+      </div>
+
+      <div class="tarj">
+        <span class="ot-etiqueta etq">data-ot-ajustar</span>
+        <div style="padding:14px 0"><div class="ot-d1" data-ot-ajustar>OCÉANO</div></div>
+        <p class="ot-pie nota">Búsqueda binaria hasta que la palabra llena el ancho exacto del contenedor, con el tracking recalculado al final. Redimensione la ventana.</p>
+      </div>
+    </div>
+
+    <div class="tarj" style="margin-top:16px">
+      <span class="ot-etiqueta etq">.ot-capitular · .ot-medida</span>
+      <p class="ot-cuerpo ot-capitular" style="margin-top:18px;--ot-capitular-color:#7C5CFF">
+        La medida de línea es el ancho cómodo de lectura, y ronda los 66 caracteres. Más corta obliga al ojo a saltar demasiado seguido; más larga hace que se pierda el renglón al volver. La capitular ancla el bloque y le da un punto de entrada al lector, que es exactamente para lo que se inventó hace quinientos años. Ninguna de las dos cosas es decoración: las dos resuelven un problema de lectura.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FONDOS ===================== -->
+<section class="sec" id="fondos">
+  <div class="wrap">
+    <div class="cabecera">
+      <span class="ot-etiqueta etq">04 · Fondos</span>
+      <h2 class="ot-d1">Superficies generadas por código.</h2>
+      <p class="ot-entradilla">Un fondo plano hace que todo lo que va encima parezca pegado. Uno con estructura le da al contenido un plano donde apoyarse. Ni una imagen de banco, ni un JPG pesado: todo son gradientes, SVG en línea y filtros.</p>
+    </div>
+    <div class="rejilla r3" id="listaFondos"></div>
+    <p class="nota ot-pie">Las cuatro últimas son recetas apiladas: malla más grano más viñeta en una sola clase. Todas se apagan solas en <code>forced-colors</code> y detienen su animación con <code>prefers-reduced-motion</code>.</p>
+  </div>
+</section>
+
+<!-- ===================== REGLA ===================== -->
+<section class="sec">
+  <div class="wrap">
+    <div class="tarj of-reticula" style="padding:clamp(28px,4vw,58px)">
+      <span class="ot-etiqueta etq">La regla que lo gobierna todo</span>
+      <h2 class="ot-d2" style="margin:18px 0 24px">A más tamaño, menos aire. A menos tamaño, más.</h2>
+      <div id="reglaDemo"></div>
+      <p class="nota ot-pie">Curva logarítmica de +0,08 em a 12 px hasta −0,05 em a 120 px. <code>OceanTexto.trackingOptico(el)</code> la aplica a cualquier elemento midiendo su tamaño renderizado.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap pie">
+  <span class="ot-etiqueta">Ocean UI · tipografía y fondos</span>
+  <span class="ot-etiqueta"><a href="index.html">Volver al núcleo</a></span>
+</footer>
+
+<script src="src/ocean-motion.js"></script>
+<script src="src/ocean-texto.js"></script>
+<script src="tipografia.js"></script>
+</body>
+</html>

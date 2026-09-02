@@ -347,3 +347,172 @@ error: producen comportamientos silenciosos y muy difíciles de rastrear.
 ---
 
 *Ocean Industries · septiembre de 2026*
+
+---
+
+# Parte III — Tipografía, capas y fondos
+
+Tercera tanda: especímenes de fuente y sistemas de marca. Lo que separa una
+interfaz "con buen tipo" de una que parece diseñada por alguien.
+
+---
+
+## 11. La regla que gobierna toda la escala
+
+**A mayor tamaño, menos aire entre letras. A menor tamaño, más.**
+
+No es preferencia: es óptica. Fonts.com lo formula así — *a medida que el tipo crece,
+el espacio entre letras parece más abierto, así que hay que cerrarlo para mantener el
+color tipográfico; a medida que decrece, el espacio parece más cerrado y hay que
+abrirlo.* Y las mayúsculas siempre piden más aire que las minúsculas, porque no tienen
+ascendentes ni descendentes que rompan el bloque.
+
+En Ocean eso no se decide a mano en cada uso: **está horneado en la escala**. Cada uno
+de los diez pasos trae su tracking, su altura de línea y su medida.
+
+```
+--ot-8 cartel     -0.050 em      --ot-2 cuerpo      0
+--ot-7 portada    -0.042 em      --ot-1 interfaz   +0.010 em
+--ot-6 titular    -0.036 em      --ot-0 pie        +0.060 em
+--ot-5 sección    -0.028 em      --ot-00 etiqueta  +0.100 em
+```
+
+Para texto cuyo tamaño no viene de la escala, `OceanTexto.trackingOptico(el)` aplica la
+misma curva midiendo el tamaño renderizado: interpolación logarítmica de +0,08 em a
+12 px hasta −0,05 em a 120 px.
+
+## 12. Tamaño óptico: un titular no es texto grande
+
+Las fuentes variables con eje `opsz` **redibujan la letra** según el cuerpo: cambian el
+contraste, el grosor de los remates y el espaciado. Con `font-optical-sizing: auto` el
+navegador lo aplica solo a partir del `font-size`. No hay que tocar nada.
+
+Fuentes de Google Fonts con ese eje, útiles en 2026:
+
+| Familia | Rango opsz | Para qué |
+|---|---|---|
+| Bricolage Grotesque | 12–96 | Display con carácter; también sirve de cuerpo |
+| Fraunces | 9–144 | Serif expresivo; además trae `SOFT` y `WONK` |
+| Literata / Newsreader | 7–72 / 6–72 | Lectura larga |
+| Inter | 14–32 | Interfaz |
+| Roboto Flex | sí | Sistemas de diseño con rango visual amplio |
+
+**Fraunces merece mención aparte**: su eje `WONK` intercambia alternates irregulares.
+Es exactamente lo que producen los remates y las colas de las referencias vintage
+—Thieving, Briston, Retolia—, pero en una sola fuente variable en vez de una licencia
+comercial.
+
+### El eje GRAD, que casi nadie usa
+
+Roboto Flex trae `GRAD`: **cambia el peso aparente sin cambiar el ancho del carácter**.
+Es la cura de un defecto clásico: el botón que se ensancha unos píxeles al pasar el
+puntero porque se pasó de 500 a 600. Con `GRAD` el texto engorda y el botón no se mueve.
+
+```css
+.ot-grad:hover{ font-variation-settings:"GRAD" 120; }
+```
+
+## 13. Voces, no fuentes sueltas
+
+El pareo de fuentes es donde más se improvisa y donde más se nota. Ocean cierra seis
+voces, cada una con display, texto y dato ya emparejados, aplicables con un atributo:
+
+| Voz | Combinación | Para qué |
+|---|---|---|
+| Editorial | Bricolage + Instrument Sans + JetBrains Mono | Marca y contenido |
+| Industrial | Archivo + Martian Mono | Producto y venta entre empresas |
+| Boticario | Fraunces + Instrument Sans | Editorial expresivo, alimentos, cosmética |
+| Cuaderno | Schibsted Grotesk + Caveat | Cuando hace falta calidez |
+| Terminal | Recursive | Paneles y herramientas internas |
+| Sistema | system-ui | Cuando el peso importa más que el carácter |
+
+Regla del acento manuscrito: **nunca más de seis palabras**. Belmonte Ballpoint funciona
+en la referencia porque es un título de tres palabras, no un párrafo.
+
+## 14. Los nueve tratamientos de capa
+
+Lo que separa "texto grande" de "tipografía" es lo que pasa detrás, encima y alrededor.
+
+1. **Fantasma** — el mismo texto repetido detrás, gigante y al 4 % de opacidad. Es lo que
+   hace Ragick en su portada. Da profundidad **sin meter un adorno ajeno al contenido**.
+2. **Contorno** — la letra hueca. Funciona sobre fotografía, donde el relleno taparía la
+   imagen. Se combina con una palabra sólida al lado, como en Special Moment.
+3. **Marcador** — el resaltado de Oyee. Cuatro variantes —sólido, línea, claro, trazo—
+   porque con una sola el párrafo se vuelve un semáforo.
+4. **Sangrado** — la palabra se sale del contenedor. Comunica que hay más de lo que cabe.
+   Una por pantalla, no más.
+5. **Apilado** — líneas muy juntas alternando alineación. Es la composición de portada de
+   cualquier espécimen de fuente.
+6. **Vertical** — etiqueta rotada al costado. Ancla la composición sin ocupar lectura.
+7. **Degradado en el texto** — solo en una palabra, jamás en un párrafo.
+8. **Capitular** — ancla el bloque y da punto de entrada. Se inventó hace quinientos años
+   para eso; sigue funcionando.
+9. **Ajuste al ancho** — búsqueda binaria hasta que la palabra llena el contenedor exacto.
+
+### Un fallo de CSS que cuesta encontrar
+
+La primera versión del contorno era esta:
+
+```css
+.ot-contorno{ color:transparent; -webkit-text-stroke:1.6px currentColor; }
+```
+
+No se veía nada. **`currentColor` se resuelve al valor de `color`, que es
+`transparent`** — así que el trazo también salía transparente. El color del trazo tiene
+que ser explícito:
+
+```css
+.ot-contorno{ color:transparent; -webkit-text-stroke:1.6px var(--contorno-color,#fff); }
+```
+
+## 15. Fondos: por qué un color plano se ve barato
+
+Un fondo plano hace que **todo lo que va encima parezca pegado**. Uno con estructura le da
+al contenido un plano donde apoyarse. La diferencia entre "tiene fondo de color" y "está
+impreso sobre algo".
+
+Ocean genera doce fondos sin una sola imagen: gradientes, SVG en línea y filtros.
+Cero peticiones de red.
+
+| Fondo | Qué resuelve |
+|---|---|
+| Grano | Evita que un color plano parezca plástico. Es la capa más barata y la que más rinde |
+| Malla | Cuatro focos desenfocados: profundidad cromática sin dibujar nada reconocible |
+| Aurora | La malla respirando, cada foco a su ritmo, así el patrón nunca se repite visiblemente |
+| Papel | Ruido de baja frecuencia con tinte cálido: superficies que deben sentirse impresas |
+| Retícula | Cuadrícula con maestras cada cinco. Comunica precisión: buena bajo datos y planos |
+| Cono | Degradado cónico girando, muy desenfocado. El fondo de "procesando" |
+
+Y cuatro **recetas apiladas** en una sola clase: `of-noche`, `of-taller`, `of-campo`,
+`of-brasa`.
+
+**El grano va entre .028 y .09 de opacidad.** Por debajo no se percibe; por encima se ve
+sucio. El punto dulce está en .05.
+
+Todos los fondos se apagan solos en `forced-colors` y detienen su animación con
+`prefers-reduced-motion`. Y una regla que se aprendió construyendo el showcase: **un
+fondo generado no sirve de nada si vuelve ilegible lo que lleva encima** — los fondos
+claros necesitan que el texto cambie de color, y eso hay que declararlo, no suponerlo.
+
+## 16. La salvaguarda de los `id` duplicados
+
+Un `id` repetido no da error en HTML. `querySelector` devuelve el primero y el código
+termina hablándole al elemento equivocado, en silencio.
+
+Pasó **tres veces** construyendo esta biblioteca. La peor costó un fallo de seguridad en
+`<ocean-acceso>` (Parte II). Las otras dos vaciaron secciones enteras del showcase porque
+`$("#escala").innerHTML = …` estaba escribiendo sobre la `<section>`, no sobre la tabla.
+
+Por eso `OceanMotion.iniciar()` ahora los denuncia en consola, solo fuera de producción:
+
+```js
+function avisarIdsDuplicados(raiz) {
+  // ...cuenta ids repetidos y avisa en localhost o file://
+}
+```
+
+Es cuatro líneas de código y ahorra horas de depuración a ciegas.
+
+---
+
+*Ocean Industries · septiembre de 2026*
