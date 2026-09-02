@@ -14,6 +14,9 @@ Copie `src/` a su proyecto y enlace:
 <script src="src/ocean-motion.js"></script>
 <script src="src/ocean-sound.js"></script>
 <script src="src/ocean-ui.js"></script>
+<!-- opcionales -->
+<script src="src/ocean-live.js"></script>
+<script src="src/ocean-auth.js"></script>
 <script>OceanUI.iniciar();</script>
 ```
 
@@ -53,6 +56,39 @@ Todo comparte **un único** `requestAnimationFrame` y **un único** listener de 
 
 Custom Elements con Shadow DOM. Teclado, ARIA y foco visible incluidos.
 
+### Actividades en vivo (`ocean-live.js`)
+Lo que está pasando ahora mismo. Se leen de reojo: cada pieza tiene una lectura primaria
+de un solo golpe y el texto viene después.
+
+| Elemento | Descripción |
+|---|---|
+| `<ocean-actividad>` | Cápsula en tres densidades, cuatro tonos y barra de progreso al pie |
+| `<ocean-onda>` | Medidor de barras: progreso, onda estática o ecualizador en vivo |
+| `<ocean-anillo>` | Anillo de progreso determinado o indeterminado |
+| `<ocean-ruta>` | Progreso por etapas con nodos e iconos |
+| `<ocean-chispa>` | Trazo de tendencia o ECG que se dibuja con la longitud real de la curva |
+| `<ocean-arco>` | Trayectoria en arco con marcador que viaja por la curva |
+| `<ocean-franjas>` | Momentos con gradiente y marcador de posición |
+| `<ocean-borde>` | Isla anclada al canto de la ventana; entra empujando, no apareciendo |
+| `<ocean-rostro>` | Rostro de cinco estados que sigue al puntero |
+
+### Acceso (`ocean-auth.js`)
+| Elemento | Descripción |
+|---|---|
+| `<ocean-acceso>` | Login con máquina de estados, rostro reactivo y medidor de fuerza en cuatro tramos |
+| `<ocean-codigo>` | Celdas de verificación que reparten un código pegado del portapapeles |
+
+```js
+acceso.verificar = async ({usuario, clave}) => {
+  const r = await fetch("/api/login", {method:"POST", body: JSON.stringify({usuario, clave})});
+  return r.ok ? {ok:true, mensaje:"Bienvenido"} : {ok:false, mensaje:"Credenciales inválidas"};
+};
+```
+
+**Seguridad:** si no se asigna `.verificar`, el componente **rechaza el acceso** y avisa
+en consola. Un valor por defecto permisivo en un control de acceso es un fallo, no una
+comodidad.
+
 ### Sonido (`ocean-sound.js`)
 Doce sonidos sintetizados con osciladores y ruido filtrado: `roce`, `toque`, `muesca`,
 `abrir`, `cerrar`, `bien`, `mal`, `aviso`, `paso`, `morph`, `desliz`, `tic`, `himno`.
@@ -84,8 +120,10 @@ originaron cada componente y el porqué de cada decisión.
 
 ## Demostración
 
-`index.html` es el showcase interactivo: laboratorio de resortes en vivo, los seis
-componentes funcionando y el catálogo de sonidos.
+- `index.html` — núcleo: laboratorio de resortes en vivo, los seis componentes base y el
+  catálogo de sonidos.
+- `live.html` — actividades en vivo, medidores, isla de borde y el sistema de acceso
+  completo con registro de estados.
 
 ---
 

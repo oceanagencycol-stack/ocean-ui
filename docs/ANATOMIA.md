@@ -194,3 +194,156 @@ apagado de fábrica si el sistema pide movimiento reducido.
 ---
 
 *Ocean Industries · septiembre de 2026*
+
+---
+
+# Parte II — Actividades en vivo y acceso
+
+Segunda tanda de referencias: Live Activities de iOS, la isla del borde lateral y
+las cápsulas compactas del sistema.
+
+---
+
+## 7. Live Activities → `<ocean-actividad>`
+
+### La regla que las gobierna
+**Una actividad en vivo no se mira: se percibe.** El usuario está haciendo otra cosa.
+Por eso cada pieza necesita una lectura primaria de un solo golpe —una forma, un color,
+una altura— y el texto siempre es secundario.
+
+### Por qué el negro es `#000` puro
+En una pantalla OLED el píxel negro está apagado. La cápsula deja de parecer un
+rectángulo pintado y parece un recorte en el cristal. Un `#111` delata la simulación al
+instante. Es una decisión de material, no de estilo.
+
+### Tres densidades, un componente
+- **Mínima**: solo importa que algo ocurre. Un punto y dos palabras.
+- **Compacta**: hay un dato que leer.
+- **Expandida**: hay que decidir algo.
+
+La transición entre densidades usa la curva de *morphing*, no la de salida: el contenedor
+debe sentirse elástico, no deslizante.
+
+### La barra al pie
+El progreso va como una línea de 2,5 px pegada al borde inferior, no como un anillo ni una
+barra dentro del contenido. Así no roba espacio y se lee incluso con la cápsula tapada a
+medias.
+
+---
+
+## 8. Medidores → `<ocean-onda>`, `<ocean-anillo>`, `<ocean-chispa>`, `<ocean-arco>`
+
+### El medidor de barras (`ocean-onda`)
+Las alturas son **deterministas**, no aleatorias: suma de dos senos desfasados.
+
+```js
+altura(i) {
+  const x = i / this.n;
+  return 0.3 + 0.45*Math.abs(Math.sin(x*11.2)) + 0.25*Math.abs(Math.sin(x*4.1+1.7));
+}
+```
+
+Con `Math.random()` la onda cambia en cada carga y el componente se siente inestable.
+Con dos senos desfasados se ve orgánica y siempre igual.
+
+### El arco (`ocean-arco`)
+El marcador viaja por la curva real con `getPointAtLength()`, no con trigonometría
+aproximada. Es la diferencia entre un punto que sigue el trazo y uno que flota cerca.
+
+```js
+const pt = path.getPointAtLength(L * v);
+m.setAttribute("cx", pt.x); m.setAttribute("cy", pt.y);
+```
+
+### El trazo ECG (`ocean-chispa`)
+La animación de dibujo necesita la longitud real del `<path>`, que solo se conoce tras
+el render:
+
+```js
+requestAnimationFrame(() => {
+  this.style.setProperty("--L", path.getTotalLength());
+});
+```
+
+Si se pone un `stroke-dasharray` fijo, el trazo se corta o queda con hueco.
+
+---
+
+## 9. Isla del borde → `<ocean-borde>`
+
+La referencia muestra un panel vertical anclado al canto del dispositivo, no flotando en
+el centro. Sirve para lo que ocurre **sin que el usuario lo pidió**: volumen, modo
+silencio, estado de conexión.
+
+**Entra empujando, no apareciendo.** Un fundido comunica "esto estaba aquí y no lo veías".
+Un empujón lateral comunica "esto acaba de llegar desde fuera". El resorte hace el resto.
+
+**Radio asimétrico**: esquinas redondeadas solo del lado interior. Del lado del borde es
+recto, porque el objeto está cortado por el canto de la pantalla.
+
+---
+
+## 10. El acceso → `<ocean-acceso>` y `<ocean-codigo>`
+
+El login es el primer momento del producto y casi siempre el peor tratado.
+
+### Máquina de estados explícita
+`reposo → escribiendo → verificando → (correcto | incorrecto) → reposo`
+
+Cada transición tiene **forma, color y sonido**. No hay estados implícitos ni banderas
+booleanas sueltas: el atributo `estado` es la única fuente de verdad y el CSS reacciona
+a él con `:host([estado=...])`.
+
+### El rostro
+Cinco geometrías, una por estado. Los ojos siguen al puntero en `mirando` y **se cierran
+mientras se escribe la contraseña** — el gesto de "no estoy viendo lo que escribes".
+En `ok` los ojos se entrecierran y la boca se curva; en `error` los ojos se abren y la
+boca baja. Es la diferencia entre un formulario y algo que responde.
+
+### La fuerza de la clave en cuatro tramos, no en barra continua
+Una barra continua invita a conformarse con "casi llena". Cuatro tramos discretos
+comunican cuatro criterios independientes: longitud, mayúsculas y minúsculas, dígito,
+símbolo.
+
+### El código que se pega solo
+`<ocean-codigo>` reparte un código de 6 dígitos entre las celdas al pegarlo. Es el
+detalle que casi nadie implementa y el que más fricción quita: el usuario copia el SMS
+y pega una sola vez.
+
+### Un bug de seguridad encontrado durante la construcción
+
+La primera versión del componente tenía este fallback:
+
+```js
+const res = await (this.verificar
+  ? this.verificar({usuario, clave})
+  : new Promise(ok => setTimeout(() => ok(clave.length >= 4), 1500)));
+```
+
+Es decir: **si nadie asignaba `.verificar`, el login aceptaba cualquier clave de cuatro
+caracteres.** Pensado como comodidad para la demo, era un agujero: bastaba olvidar la
+asignación en producción para dejar la puerta abierta.
+
+Se descubrió porque en el showcase había un `id` duplicado —`<section id="acceso">` y
+`<ocean-acceso id="acceso">`—, así que `document.querySelector("#acceso")` devolvía la
+sección y `acceso.verificar = ...` se asignaba al elemento equivocado. El componente caía
+al fallback y concedía acceso con una clave incorrecta.
+
+**Corrección:** sin verificador no se concede acceso. Se rechaza, se avisa en consola y
+se muestra un mensaje de configuración incompleta.
+
+```js
+if (typeof this.verificar !== "function") {
+  console.error("[ocean-acceso] Falta asignar .verificar — no se concede acceso.");
+  this.fallar("Configuración incompleta: no hay verificador asignado.");
+  return;
+}
+```
+
+La lección vale más que el componente: **un valor por defecto permisivo en un control de
+acceso es un fallo de seguridad, no una comodidad.** Y los `id` duplicados en HTML no dan
+error: producen comportamientos silenciosos y muy difíciles de rastrear.
+
+---
+
+*Ocean Industries · septiembre de 2026*

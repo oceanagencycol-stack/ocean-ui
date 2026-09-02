@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es" data-o-tema="oscuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ocean Live — actividades en vivo y acceso | Ocean UI</title>
+<meta name="description" content="Cápsulas de actividad en vivo, medidores, anillos, rutas, islas de borde y un sistema de acceso con máquina de estados. Parte de Ocean UI.">
+<meta name="theme-color" content="#05070A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/ocean.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  .capsulas{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;align-items:start}
+  .demo-caja{background:#0D1219;border:1px solid rgba(255,255,255,.07);border-radius:var(--o-r-l);
+    padding:22px;display:flex;flex-direction:column;gap:14px}
+  .demo-caja > .o-mono{color:var(--o-acento-2);opacity:.85}
+  .demo-caja .muestra{display:flex;flex-direction:column;gap:12px;align-items:stretch;
+    padding:16px;border-radius:var(--o-r-m);background:#F1F2F4;
+    background-image:radial-gradient(circle at 30% 20%, #fff, #E7E9EE)}
+  .demo-caja p{margin:0;color:var(--tx2);font-size:.86rem;line-height:1.55}
+  .fila-cap{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .acceso-zona{display:grid;grid-template-columns:1fr 340px;gap:clamp(24px,4vw,56px);align-items:start}
+  @media(max-width:940px){.acceso-zona{grid-template-columns:1fr}}
+  .acceso-caja{background:#0D1219;border:1px solid rgba(255,255,255,.08);
+    border-radius:var(--o-r-xl);padding:clamp(26px,3.4vw,46px)}
+  .registro{display:flex;flex-direction:column;gap:7px;font-family:var(--mono);font-size:.75rem;
+    max-height:330px;overflow-y:auto}
+  .registro div{padding:9px 12px;border-radius:9px;background:rgba(255,255,255,.05);
+    border-left:2px solid var(--o-acento)}
+  .registro div.ok{border-left-color:#34D399} .registro div.err{border-left-color:#F87171}
+  .pistas{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+  .cod-zona{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="fondo" aria-hidden="true">
+  <span class="orbe o1"></span><span class="orbe o2"></span>
+  <span class="orbe o3"></span><span class="orbe o4"></span>
+</div>
+
+<header class="cab">
+  <div class="wrap fila">
+    <a href="index.html" class="marca"><span class="punto"></span> Ocean UI</a>
+    <nav class="nav">
+      <a href="index.html">Núcleo</a><a href="#actividades">Actividades</a>
+      <a href="#medidores">Medidores</a><a href="#borde">Borde</a><a href="#acceso">Acceso</a>
+    </nav>
+    <button class="son" id="botonSonido" aria-pressed="false">
+      <span class="ondas"><i></i><i></i><i></i></span><span id="etiquetaSonido">Sonido</span>
+    </button>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <div class="eyebrow o-rv"><span class="o-mono">Ocean UI · módulo Live</span></div>
+    <h1 class="d1" data-o-palabras>Lo que está *pasando ahora*.</h1>
+    <p class="lede o-rv o-rv-d2">Las actividades en vivo no se miran: se perciben. Por eso cada pieza tiene una lectura primaria de un solo golpe —una forma, un color, una altura— y el texto siempre viene después.</p>
+    <div class="acciones o-rv o-rv-d3">
+      <a class="btn" href="#acceso" data-o-sonido="toque" data-o-roce><span>Ver el acceso</span><span class="fl">→</span></a>
+      <a class="btn linea" href="#actividades" data-o-sonido="toque" data-o-roce>Actividades</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ACTIVIDADES ============ -->
+<section class="sec" id="actividades">
+  <div class="wrap">
+    <div class="cabecera">
+      <span class="o-mono etiqueta o-rv">01 · Cápsulas</span>
+      <h2 class="d2 o-rv o-rv-d1">Tres densidades, un mismo componente.</h2>
+      <p class="lede o-rv o-rv-d2">Mínima cuando solo importa que algo ocurre. Compacta cuando hay un dato. Expandida cuando hay que decidir. El negro es <code>#000</code> puro: en OLED el píxel se apaga y la cápsula parece un recorte en el cristal.</p>
+    </div>
+
+    <div class="capsulas" data-o-esc="70">
+      <div class="demo-caja o-rv"><span class="o-mono">&lt;ocean-actividad&gt;</span>
+        <div class="muestra" id="mDensidad"></div>
+        <p>Las tres densidades del mismo elemento. La transición de altura usa la curva de morphing, no la de salida.</p>
+        <div class="fila-cap">
+          <button class="mini" data-dens="minima" data-o-roce>Mínima</button>
+          <button class="mini" data-dens="compacta" data-o-roce>Compacta</button>
+          <button class="mini" data-dens="expandida" data-o-roce>Expandida</button>
+        </div>
+      </div>
+
+      <div class="demo-caja o-rv"><span class="o-mono">tono · progreso · vivo</span>
+        <div class="muestra">
+          <ocean-actividad densidad="compacta" icono="↓" principal="Descargando catálogo"
+            secundario="42 de 59 referencias" tono="acento" progreso="71" vivo></ocean-actividad>
+          <ocean-actividad densidad="compacta" icono="✓" principal="Pedido confirmado"
+            secundario="Llega el martes 9" tono="ok" progreso="100"></ocean-actividad>
+          <ocean-actividad densidad="compacta" icono="!" principal="Stock bajo"
+            secundario="Rollo 65×90 negro · 12 und" tono="alerta"></ocean-actividad>
+          <ocean-actividad densidad="minima" icono="◉" principal="Grabando" tono="error" vivo></ocean-actividad>
+        </div>
+        <p>Cuatro tonos semánticos y una barra de progreso al pie que no roba espacio al contenido.</p>
+      </div>
+
+      <div class="demo-caja o-rv"><span class="o-mono">&lt;ocean-ruta&gt;</span>
+        <div class="muestra" style="padding:24px 20px">
+          <ocean-ruta id="ruta" etapas="Recibido,Alistando,En camino,Entregado"
+            iconos="📋,📦,🚚,🏠" actual="1" color="#7C5CFF"></ocean-ruta>
+        </div>
+        <p>Progreso por etapas: cada nodo crece al activarse y la línea se llena entre ellos.</p>
+        <div class="fila-cap"><button class="mini" id="rutaGo" data-o-roce>Avanzar etapa</button>
+          <button class="mini" id="rutaReset" data-o-roce>Reiniciar</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MEDIDORES ============ -->
+<section class="sec" id="medidores">
+  <div class="wrap">
+    <div class="cabecera">
+      <span class="o-mono etiqueta o-rv">02 · Medidores</span>
+      <h2 class="d2 o-rv o-rv-d1">La forma es el dato.</h2>
+      <p class="lede o-rv o-rv-d2">Un número dice cuánto. Una silueta dice cuánto <em>y</em> cómo va. Estos cuatro medidores se leen sin enfocar la vista.</p>
+    </div>
+
+    <div class="capsulas" data-o-esc="70">
+      <div class="demo-caja o-rv"><span class="o-mono">&lt;ocean-onda&gt;</span>
+        <div class="muestra">
+          <div style="background:#000;border-radius:22px;padding:18px 20px;color:#fff">
+            <ocean-onda id="ondaEsp" modo="progreso" barras="30" valor="58"
+              color="#FF7A1A" alto="36px"></ocean-onda>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+              <span style="font-weight:600">Espresso</span>
+              <span class="o-num" id="espTiempo" style="font-size:1.6rem;color:#FF7A1A">16s</span>
+            </div>
+          </div>
+          <div style="background:#000;border-radius:22px;padding:18px 20px;color:#fff">
+            <ocean-onda modo="vivo" barras="34" color="#FFD52E" alto="40px"></ocean-onda>
+            <div style="display:flex;justify-content:space-between;margin-top:12px">
+              <span class="o-num" style="color:#FFD52E;font-weight:600">24:15</span>
+              <span class="o-num" style="color:#FFD52E">1.8 MI</span></div>
+          </div>
+        </div>
+        <p>Modo progreso, onda estática y ecualizador en vivo. Las alturas son deterministas: la misma onda se ve igual en cada carga.</p>
+        <div class="fila-cap"><button class="mini" id="espGo" data-o-roce>Extraer espresso</button></div>
+      </div>
+
+      <div class="demo-caja o-rv"><span class="o-mono">&lt;ocean-anillo&gt; · &lt;ocean-chispa&gt;</span>
+        <div class="muestra">
+          <div style="background:#000;border-radius:22px;padding:18px 20px;color:#fff;
+                      display:flex;align-items:center;gap:16px">
+            <ocean-anillo valor="67" tam="40px" color="#22D3EE"></ocean-anillo>
+            <div style="flex:1"><div style="font-weight:600">Sincronizando</div>
+              <div style="font-size:.8rem;opacity:.5">412 registros</div></div>
+            <span class="o-num" style="color:#22D3EE;font-size:1.2rem">67%</span>
+          </div>
+          <div style="background:#000;border-radius:22px;padding:18px 20px;color:#fff">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+              <span style="color:#FF3D71;font-size:20px">♥</span>
+              <span class="o-num" style="font-size:1.5rem;font-weight:600">82</span>
+              <span style="opacity:.5">bpm</span></div>
+            <ocean-chispa ecg color="#FF3D71" alto="34px"></ocean-chispa>
+          </div>
+          <div style="background:#000;border-radius:22px;padding:18px 20px;color:#fff;
+                      display:flex;align-items:center;gap:14px">
+            <ocean-anillo indeterminado tam="30px" color="#7C5CFF"></ocean-anillo>
+            <span style="font-weight:600">Procesando pago</span>
+          </div>
+        </div>
+        <p>Anillo determinado e indeterminado, y trazo tipo ECG que se dibuja en bucle con la longitud real de la curva.</p>
+      </div>
+
+      <div class="demo-caja o-rv"><span class="o-mono">&lt;ocean-arco&gt; · &lt;ocean-franjas&gt;</span>
+        <div class="muestra">
+          <div style="background:#000;border-radius:22px;padding:18px 20px;color:#fff">
+            <ocean-arco id="arco" valor="34" etiqueta="Paso de la ISS" detalle="en 14 min"
+              color="#5BC8FF" color2="#2563EB"></ocean-arco>
+          </div>
+          <div style="background:#000;border-radius:22px;padding:18px 20px;color:#fff">
+            <ocean-franjas id="franjas"></ocean-franjas>
+          </div>
+        </div>
+        <p>El marcador del arco viaja por la curva real con <code>getPointAtLength</code>, no con trigonometría aproximada.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BORDE ============ -->
+<section class="sec" id="borde">
+  <div class="wrap">
+    <div class="cabecera">
+      <span class="o-mono etiqueta o-rv">03 · Isla de borde</span>
+      <h2 class="d2 o-rv o-rv-d1">Anclada al canto, no flotando en el centro.</h2>
+      <p class="lede o-rv o-rv-d2">Un panel vertical que entra empujando desde el borde. Sirve para lo que ocurre sin que el usuario lo pidió: volumen, modo silencio, estado de conexión. Entra con un empujón lateral, no con un fundido.</p>
+    </div>
+    <div class="fila-cap o-rv o-rv-d2">
+      <button class="btn" id="bordeVol" data-o-roce><span>Mostrar volumen</span></button>
+      <button class="btn linea" id="bordeModo" data-o-roce>Cambiar de modo</button>
+      <button class="btn linea" id="bordeFijo" data-o-roce>Fijar abierto</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ACCESO ============ -->
+<section class="sec" id="acceso">
+  <div class="wrap">
+    <div class="cabecera">
+      <span class="o-mono etiqueta o-rv">04 · Acceso</span>
+      <h2 class="d2 o-rv o-rv-d1">El login como conversación, no como formulario.</h2>
+      <p class="lede o-rv o-rv-d2">Máquina de estados explícita: reposo, escribiendo, verificando, correcto o incorrecto. Cada transición tiene forma, color y sonido. El rostro sigue al puntero, cierra los ojos mientras se escribe la contraseña y reacciona al resultado.</p>
+    </div>
+
+    <div class="acceso-zona">
+      <div class="acceso-caja o-rv o-rv-d1">
+        <ocean-acceso id="formAcceso" titulo="Entrar a Ocean" subtitulo="Use la clave «ocean» para ver el acierto"
+          boton="Entrar">
+          <span slot="pie">¿Olvidó la contraseña? <a href="#acceso">Recuperar</a></span>
+        </ocean-acceso>
+      </div>
+      <div>
+        <div class="demo-caja o-rv o-rv-d2">
+          <span class="o-mono">Registro de estados</span>
+          <div class="registro" id="registro"></div>
+        </div>
+        <div class="pistas">
+          <button class="mini" id="probOk" data-o-roce>Simular acierto</button>
+          <button class="mini" id="probErr" data-o-roce>Simular error</button>
+          <button class="mini" id="probReset" data-o-roce>Reiniciar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cabecera" style="margin-top:clamp(56px,7vw,100px)">
+      <h3 class="d2 o-rv" style="font-size:clamp(1.5rem,3vw,2.4rem)">Verificación en dos pasos.</h3>
+      <p class="lede o-rv o-rv-d1">Pegue <code>123456</code> desde el portapapeles: el código se reparte solo entre las celdas. Ese es el detalle que casi nadie implementa.</p>
+    </div>
+    <div class="acceso-caja o-rv o-rv-d1" style="max-width:520px;margin-inline:auto">
+      <div class="cod-zona">
+        <ocean-rostro id="rostro2" estado="reposo" tam="86px"></ocean-rostro>
+        <p style="margin:0;color:var(--tx2)">Enviamos un código de 6 dígitos</p>
+        <ocean-codigo id="codigo" largo="6"></ocean-codigo>
+        <p class="o-mono" id="codMsg" style="color:var(--tx2);min-height:1.2em">Esperando</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="pie">
+  <div class="wrap"><div class="pie-fila">
+    <span class="o-mono">Ocean UI · módulo Live</span>
+    <span class="o-mono"><a href="index.html">Volver al núcleo</a></span>
+  </div></div>
+</footer>
+
+<!-- isla de borde, fuera del flujo -->
+<ocean-borde id="islaBorde" lado="izq">
+  <div id="bordeContenido"></div>
+</ocean-borde>
+
+<script src="src/ocean-motion.js"></script>
+<script src="src/ocean-sound.js"></script>
+<script src="src/ocean-ui.js"></script>
+<script src="src/ocean-live.js"></script>
+<script src="src/ocean-auth.js"></script>
+<script src="live.js"></script>
+</body>
+</html>
