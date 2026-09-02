@@ -1,0 +1,171 @@
+/* =========================================================================
+   OCEAN UI — núcleo
+   Sistema de superficies, movimiento y materia para los productos de Ocean.
+   Sin dependencias. Funciona en cualquier página con solo enlazar este archivo.
+   ========================================================================= */
+
+/* ------------------------------------------------------------------ tokens */
+:root{
+  /* --- materia. El vidrio no es un color: es una capa con profundidad. --- */
+  --o-glass-tinte:255,255,255;        /* tinte base del vidrio, en RGB crudo */
+  --o-glass-op:.10;                   /* opacidad del tinte */
+  --o-glass-blur:26px;
+  --o-glass-sat:1.7;
+  --o-glass-borde:rgba(255,255,255,.22);
+  --o-glass-luz:rgba(255,255,255,.55); /* filo superior que simula el canto */
+  --o-glass-sombra:0 24px 70px rgba(0,0,0,.34);
+  --o-glass-interior:inset 0 1px 0 var(--o-glass-luz), inset 0 -1px 0 rgba(0,0,0,.12);
+
+  /* --- profundidad. Seis niveles, no infinitos. --- */
+  --o-e0:none;
+  --o-e1:0 1px 2px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
+  --o-e2:0 4px 12px rgba(0,0,0,.08), 0 8px 28px rgba(0,0,0,.06);
+  --o-e3:0 10px 24px rgba(0,0,0,.10), 0 20px 56px rgba(0,0,0,.10);
+  --o-e4:0 18px 40px rgba(0,0,0,.14), 0 36px 90px rgba(0,0,0,.16);
+  --o-e5:0 30px 70px rgba(0,0,0,.22), 0 60px 140px rgba(0,0,0,.24);
+
+  /* --- radios. Continuos, estilo "squircle" aproximado. --- */
+  --o-r-xs:8px; --o-r-s:14px; --o-r-m:20px; --o-r-l:28px;
+  --o-r-xl:36px; --o-r-2xl:48px; --o-r-full:999px;
+
+  /* --- movimiento. Duración y curva son parte del sistema. --- */
+  --o-t-inst:120ms;
+  --o-t-rapido:220ms;
+  --o-t-medio:380ms;
+  --o-t-lento:620ms;
+  --o-t-cine:980ms;
+  --o-ease:cubic-bezier(.16,1,.3,1);          /* salida suave, la de por defecto */
+  --o-ease-io:cubic-bezier(.65,0,.35,1);
+  --o-ease-resorte:cubic-bezier(.34,1.56,.64,1); /* rebote corto */
+  --o-ease-morph:cubic-bezier(.32,.72,0,1);   /* la curva del morphing de isla */
+
+  /* --- color base neutro. Cada producto lo sobreescribe. --- */
+  --o-tinta:#0A0E14;
+  --o-tinta-2:#141A22;
+  --o-nube:#F4F5F7;
+  --o-blanco:#fff;
+  --o-acento:#3B82F6;
+  --o-acento-2:#22D3EE;
+  --o-ok:#34D399;
+  --o-alerta:#FBBF24;
+  --o-error:#F87171;
+  --o-texto:#0A0E14;
+  --o-texto-2:rgba(10,14,20,.62);
+  --o-inverso:#F7F9FB;
+  --o-inverso-2:rgba(247,249,251,.62);
+
+  --o-sans:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --o-mono:'JetBrains Mono',ui-monospace,monospace;
+}
+
+/* tema oscuro: el vidrio cambia de naturaleza, no solo de color */
+[data-o-tema="oscuro"]{
+  --o-glass-tinte:255,255,255;
+  --o-glass-op:.07;
+  --o-glass-borde:rgba(255,255,255,.14);
+  --o-glass-luz:rgba(255,255,255,.30);
+  --o-glass-sombra:0 30px 80px rgba(0,0,0,.55);
+  --o-texto:#F7F9FB;
+  --o-texto-2:rgba(247,249,251,.60);
+}
+
+/* ================================================================= vidrio */
+/*  Cuatro capas apiladas, porque un solo backdrop-filter se ve plano:
+    1. desenfoque del fondo con saturación (el vidrio concentra el color)
+    2. tinte translúcido
+    3. filo de luz superior e inferior (el canto del material)
+    4. grano fino, para que no parezca plástico
+*/
+.o-glass{
+  position:relative;
+  background:rgba(var(--o-glass-tinte), var(--o-glass-op));
+  backdrop-filter:blur(var(--o-glass-blur)) saturate(var(--o-glass-sat));
+  -webkit-backdrop-filter:blur(var(--o-glass-blur)) saturate(var(--o-glass-sat));
+  border:1px solid var(--o-glass-borde);
+  border-radius:var(--o-r-l);
+  box-shadow:var(--o-glass-sombra), var(--o-glass-interior);
+  isolation:isolate;
+}
+.o-glass::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  opacity:.035;mix-blend-mode:overlay;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.o-glass > *{position:relative;z-index:1}
+
+/* variantes de espesor */
+.o-glass--fino{--o-glass-blur:14px;--o-glass-op:.06}
+.o-glass--grueso{--o-glass-blur:40px;--o-glass-op:.16}
+.o-glass--solido{--o-glass-blur:60px;--o-glass-op:.28}
+
+/* vidrio con luz especular que sigue al puntero (lo alimenta ocean-motion) */
+.o-glass--vivo::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
+  background:radial-gradient(320px circle at var(--o-mx,50%) var(--o-my,50%),
+             rgba(255,255,255,.16), transparent 62%);
+  opacity:0;transition:opacity var(--o-t-medio) var(--o-ease);
+}
+.o-glass--vivo:hover::before{opacity:1}
+
+/* ============================================================== elevación */
+.o-e1{box-shadow:var(--o-e1)} .o-e2{box-shadow:var(--o-e2)} .o-e3{box-shadow:var(--o-e3)}
+.o-e4{box-shadow:var(--o-e4)} .o-e5{box-shadow:var(--o-e5)}
+
+/* =============================================================== reveals */
+/*  Estado inicial declarado en CSS; ocean-motion solo añade .o-vis.
+    Así la página nunca queda invisible si el JS falla.                */
+.o-rv{opacity:0;transform:translateY(24px);
+  transition:opacity var(--o-t-cine) var(--o-ease), transform var(--o-t-cine) var(--o-ease)}
+.o-rv.o-vis{opacity:1;transform:none}
+.o-rv--esc{transform:scale(.94)}
+.o-rv--izq{transform:translateX(-28px)}
+.o-rv--der{transform:translateX(28px)}
+.o-rv--clip{clip-path:inset(0 0 100% 0);opacity:1;transform:none;
+  transition:clip-path var(--o-t-cine) var(--o-ease)}
+.o-rv--clip.o-vis{clip-path:inset(0 0 0 0)}
+.o-rv--desenfoque{filter:blur(14px)}
+.o-rv--desenfoque.o-vis{filter:none;transition:opacity var(--o-t-cine) var(--o-ease),
+  transform var(--o-t-cine) var(--o-ease), filter var(--o-t-cine) var(--o-ease)}
+[data-o-esc]{transition-delay:calc(var(--o-i,0) * var(--o-esc,70ms))}
+
+/* palabra por palabra */
+.o-pal{display:inline-block;overflow:hidden;vertical-align:bottom}
+.o-pal > span{display:inline-block;transform:translateY(108%);
+  transition:transform var(--o-t-cine) var(--o-ease)}
+.o-listo .o-pal > span{transform:none}
+
+/* ================================================================ magnético */
+.o-iman{transition:transform var(--o-t-medio) var(--o-ease)}
+.o-tilt{transform-style:preserve-3d;transition:transform var(--o-t-medio) var(--o-ease)}
+.o-tilt > *{transform:translateZ(30px)}
+
+/* =================================================================== bento */
+.o-bento{display:grid;gap:var(--o-bento-gap,14px);
+  grid-template-columns:repeat(var(--o-bento-cols,4),minmax(0,1fr));
+  grid-auto-rows:var(--o-bento-fila,150px)}
+.o-bento > [data-o-col]{grid-column:span var(--o-c);}
+.o-bento > [data-o-fila]{grid-row:span var(--o-f);}
+@media(max-width:900px){.o-bento{--o-bento-cols:2}}
+@media(max-width:560px){.o-bento{--o-bento-cols:1}
+  .o-bento > *{grid-column:span 1!important}}
+
+/* ============================================================ tipografía */
+.o-mono{font-family:var(--o-mono);font-variant-numeric:tabular-nums;
+  letter-spacing:.02em;font-size:.68rem;text-transform:uppercase}
+.o-num{font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+
+/* =========================================================== accesibilidad */
+.o-solo-lectores{position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+@media(prefers-reduced-motion:reduce){
+  :root{--o-t-inst:1ms;--o-t-rapido:1ms;--o-t-medio:1ms;--o-t-lento:1ms;--o-t-cine:1ms}
+  .o-rv{opacity:1;transform:none;filter:none;clip-path:none}
+  .o-pal > span{transform:none}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important}
+}
+
+/* Windows en alto contraste: el vidrio desaparece, la estructura queda */
+@media(forced-colors:active){
+  .o-glass{background:Canvas;border:1px solid CanvasText;backdrop-filter:none}
+}

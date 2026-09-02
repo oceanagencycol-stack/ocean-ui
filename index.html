@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es" data-o-tema="oscuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ocean UI — sistema de superficies, movimiento y sonido</title>
+<meta name="description" content="Biblioteca de interfaz de Ocean Industries: vidrio con profundidad real, física de resorte, componentes nativos y diseño sonoro sintetizado. Sin dependencias.">
+<meta name="theme-color" content="#05070A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/ocean.css">
+<link rel="stylesheet" href="demo.css">
+</head>
+<body>
+
+<div class="fondo" aria-hidden="true">
+  <span class="orbe o1"></span><span class="orbe o2"></span>
+  <span class="orbe o3"></span><span class="orbe o4"></span>
+</div>
+
+<!-- ===================== CABECERA ===================== -->
+<header class="cab">
+  <div class="wrap fila">
+    <a href="#top" class="marca"><span class="punto"></span> Ocean UI</a>
+    <nav class="nav">
+      <a href="#vidrio">Vidrio</a><a href="#movimiento">Movimiento</a>
+      <a href="#componentes">Componentes</a><a href="#sonido">Sonido</a><a href="#uso">Uso</a>
+    </nav>
+    <button class="son" id="botonSonido" aria-pressed="false">
+      <span class="ondas"><i></i><i></i><i></i></span><span id="etiquetaSonido">Sonido</span>
+    </button>
+  </div>
+</header>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <div class="eyebrow o-rv"><span class="o-mono">Ocean Industries · sistema de interfaz</span></div>
+    <h1 class="d1" data-o-palabras>Materia, no *decoración*.</h1>
+    <p class="lede o-rv o-rv-d2">Vidrio con profundidad real, física de resorte en lugar de curvas fingidas, componentes nativos del navegador y sonido sintetizado sin un solo archivo de audio. Cero dependencias, cero compilación.</p>
+    <div class="acciones o-rv o-rv-d3">
+      <a class="btn" href="#componentes" data-o-sonido="toque" data-o-roce><span>Ver los componentes</span><span class="fl">→</span></a>
+      <a class="btn linea" href="#uso" data-o-sonido="toque" data-o-roce>Cómo se usa</a>
+    </div>
+
+    <div class="isla-zona o-rv o-rv-d4">
+      <ocean-isla id="isla" estado="compacta" icono="●" titulo="Ocean UI"></ocean-isla>
+      <div class="isla-btns">
+        <button class="mini" data-isla="compacta" data-o-roce>Compacta</button>
+        <button class="mini" data-isla="media" data-o-roce>Media</button>
+        <button class="mini" data-isla="expandida" data-o-roce>Expandida</button>
+        <button class="mini acento" id="islaAviso" data-o-roce>Simular aviso</button>
+      </div>
+      <p class="pie-nota">Un contenedor que cambia de forma con resorte. El contenido entra desfasado del contorno: eso es lo que lo hace sentir material.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== VIDRIO ===================== -->
+<section class="sec" id="vidrio">
+  <div class="wrap">
+    <div class="cabecera">
+      <span class="o-mono etiqueta o-rv">01 · Superficie</span>
+      <h2 class="d2 o-rv o-rv-d1">El vidrio son cuatro capas, no un <em>blur</em>.</h2>
+      <p class="lede o-rv o-rv-d2">Un solo <code>backdrop-filter</code> se ve plano y barato. Ocean apila desenfoque con saturación, tinte translúcido, filo de luz en el canto y grano fino. Pase el puntero por encima para ver la luz especular seguirlo.</p>
+    </div>
+
+    <div class="o-bento" style="--o-bento-cols:4;--o-bento-fila:170px" data-o-esc="80">
+      <article class="tarj o-glass o-glass--vivo o-rv" data-o-col style="--o-c:2" data-o-tilt="7">
+        <div><span class="o-mono">Espesor por defecto</span>
+        <h3>Vidrio estándar</h3>
+        <p>Desenfoque 26 px, saturación 1.7, tinte al 10 %. El que se usa en el 80 % de los casos.</p></div>
+      </article>
+      <article class="tarj o-glass o-glass--fino o-glass--vivo o-rv" data-o-tilt="7">
+        <div><span class="o-mono">--fino</span><h3>Fino</h3><p>Para capas superpuestas.</p></div>
+      </article>
+      <article class="tarj o-glass o-glass--grueso o-glass--vivo o-rv" data-o-tilt="7">
+        <div><span class="o-mono">--grueso</span><h3>Grueso</h3><p>Cuando debe leerse texto encima.</p></div>
+      </article>
+      <article class="tarj o-glass o-glass--vivo o-rv" data-o-col style="--o-c:2" data-o-tilt="6">
+        <div><span class="o-mono">Inclinación 3D</span>
+        <h3>Perspectiva con resorte</h3>
+        <p>El giro persigue al puntero con masa. Al salir vuelve solo, sin frenazo.</p></div>
+      </article>
+      <article class="tarj o-glass o-glass--solido o-rv" data-o-col style="--o-c:2">
+        <div><span class="o-mono">--solido</span>
+        <h3>Sólido</h3><p>Casi opaco, para superficies de trabajo prolongado.</p></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MOVIMIENTO ===================== -->
+<section class="sec" id="movimiento">
+  <div class="wrap">
+    <div class="cabecera">
+      <span class="o-mono etiqueta o-rv">02 · Movimiento</span>
+      <h2 class="d2 o-rv o-rv-d1">Resortes de verdad, no curvas que fingen.</h2>
+      <p class="lede o-rv o-rv-d2">Un integrador de Euler semi-implícito: el valor no interpola de A a B, lo persigue con masa e inercia. Si el destino cambia a media animación, no hay salto. Ajuste rigidez y amortiguación y suelte el bloque.</p>
+    </div>
+
+    <div class="lab o-glass o-rv o-rv-d2">
+      <div class="lab-ctrl">
+        <label><span class="o-mono">Rigidez <b id="vRig">170</b></span>
+          <ocean-barra id="rig" min="40" max="480" paso="10" valor="170"></ocean-barra></label>
+        <label><span class="o-mono">Amortiguación <b id="vAmo">22</b></span>
+          <ocean-barra id="amo" min="4" max="60" paso="1" valor="22"></ocean-barra></label>
+        <div class="preajustes">
+          <button class="mini" data-pre="170,22" data-o-roce>Suave</button>
+          <button class="mini" data-pre="380,18" data-o-roce>Rápido</button>
+          <button class="mini" data-pre="220,9" data-o-roce>Rebote</button>
+          <button class="mini" data-pre="120,40" data-o-roce>Pesado</button>
+        </div>
+      </div>
+      <div class="lab-pista" id="pista"><div class="lab-bloque" id="bloque"></div></div>
+      <p class="pie-nota">Clic en la pista para lanzar el bloque a ese punto.</p>
+    </div>
+
+    <div class="rejilla3" style="margin-top:34px" data-o-esc="90">
+      <div class="tarj o-glass o-rv"><div><span class="o-mono">Magnético</span><h3>Atracción al puntero</h3>
+        <p>El elemento persigue al cursor dentro de un radio y vuelve solo.</p>
+        <button class="btn chico" data-o-iman="0.45" data-o-sonido="toque">Acérquese</button></div></div>
+      <div class="tarj o-glass o-rv"><div><span class="o-mono">Escalonado</span><h3>Entrada en cascada</h3>
+        <p>Los hijos heredan su índice y el retardo se calcula solo en CSS.</p>
+        <div class="puntos" data-o-esc="70"><i class="o-rv"></i><i class="o-rv"></i><i class="o-rv"></i><i class="o-rv"></i><i class="o-rv"></i></div></div></div>
+      <div class="tarj o-glass o-rv"><div><span class="o-mono">Contadores</span><h3>Cifras que suben</h3>
+        <p>Con desaceleración cúbica, al entrar en pantalla.</p>
+        <div class="cifra o-num" data-o-contador="12480">0</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== COMPONENTES ===================== -->
+<section class="sec" id="componentes">
+  <div class="wrap">
+    <div class="cabecera">
+      <span class="o-mono etiqueta o-rv">03 · Componentes</span>
+      <h2 class="d2 o-rv o-rv-d1">Elementos nativos del navegador.</h2>
+      <p class="lede o-rv o-rv-d2">Custom Elements con Shadow DOM. Se usan como HTML corriente, funcionan con teclado, exponen ARIA y no arrastran ningún framework.</p>
+    </div>
+
+    <div class="comp-grid">
+      <!-- DIAL -->
+      <article class="tarj alto o-glass o-rv">
+        <div class="comp-cab"><span class="o-mono">&lt;ocean-dial&gt;</span><h3>Dial radial</h3></div>
+        <div class="comp-cuerpo">
+          <ocean-dial id="dial" min="16" max="30" valor="24" paso="1" unidad="°C"
+            etiqueta="Temperatura" muescas="28" color="#7C5CFF" color2="#FF9A62"></ocean-dial>
+        </div>
+        <p class="pie-nota">Arrastre angular acumulado: no salta al cruzar el origen. Rueda del ratón, flechas, Inicio y Fin. Cada muesca suena y vibra.</p>
+      </article>
+
+      <!-- TIRA -->
+      <article class="tarj alto o-glass o-rv o-rv-d1">
+        <div class="comp-cab"><span class="o-mono">&lt;ocean-tira&gt;</span><h3>Tira vertical</h3></div>
+        <div class="comp-cuerpo fila-tiras">
+          <ocean-tira id="tiraNivel" modo="nivel" valor="72" icono="◐" pie="Nivel"></ocean-tira>
+          <ocean-tira id="tiraLista" modo="lista" opciones="5,10,15,30,60" valor="10" icono="⏱"></ocean-tira>
+          <ocean-tira id="tiraTiempo" modo="tiempo" icono="⏱" pie="Temporizador"></ocean-tira>
+        </div>
+        <div class="comp-btns">
+          <button class="mini" id="tiraGo" data-o-roce>Iniciar 15 s</button>
+          <button class="mini" id="tiraStop" data-o-roce>Detener</button>
+        </div>
+        <p class="pie-nota">Tres modos: nivel, lista con selección y cuenta atrás con relleno que decrece.</p>
+      </article>
+
+      <!-- DOCK -->
+      <article class="tarj o-glass o-rv o-rv-d2" data-o-col>
+        <div class="comp-cab"><span class="o-mono">&lt;ocean-dock&gt;</span><h3>Barra contextual</h3></div>
+        <div class="comp-cuerpo">
+          <ocean-dock id="dock">
+            <button data-v="favoritos" aria-pressed="true">Favoritos</button>
+            <button data-v="sala">Sala</button>
+            <button data-v="cocina">Cocina</button>
+            <button data-v="baño">Baño</button>
+          </ocean-dock>
+          <p class="salida o-mono" id="dockSalida">favoritos</p>
+        </div>
+        <p class="pie-nota">El indicador se desliza con resorte y se remide al cambiar el tamaño de la ventana.</p>
+      </article>
+
+      <!-- CONTROLES -->
+      <article class="tarj o-glass o-rv o-rv-d3">
+        <div class="comp-cab"><span class="o-mono">&lt;ocean-toggle&gt; · &lt;ocean-barra&gt;</span><h3>Controles</h3></div>
+        <div class="comp-cuerpo controles">
+          <div class="ctl"><span>Modo nocturno</span><ocean-toggle id="tg1" activo></ocean-toggle></div>
+          <div class="ctl"><span>Notificaciones</span><ocean-toggle id="tg2"></ocean-toggle></div>
+          <label class="ctl vert"><span class="o-mono">Brillo <b id="vBrillo">64</b>%</span>
+            <ocean-barra id="brillo" min="0" max="100" valor="64"></ocean-barra></label>
+        </div>
+        <p class="pie-nota">La bola del interruptor se estira al moverse. El deslizador emite un tono cuya altura sigue al valor.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SONIDO ===================== -->
+<section class="sec" id="sonido">
+  <div class="wrap">
+    <div class="cabecera">
+      <span class="o-mono etiqueta o-rv">04 · Sonido</span>
+      <h2 class="d2 o-rv o-rv-d1">Doce sonidos, cero archivos.</h2>
+      <p class="lede o-rv o-rv-d2">Todo se sintetiza con osciladores y ruido filtrado sobre un bus con compresor. Pesa lo que pesa el archivo JavaScript y suena igual con mala conexión. Arranca solo tras un gesto real y recuerda si usted lo apagó.</p>
+    </div>
+    <div class="sonidos" id="sonidos" data-o-esc="45"></div>
+    <p class="pie-nota" style="margin-top:20px">Si su sistema pide movimiento reducido, el sonido arranca apagado.</p>
+  </div>
+</section>
+
+<!-- ===================== USO ===================== -->
+<section class="sec" id="uso">
+  <div class="wrap">
+    <div class="cabecera">
+      <span class="o-mono etiqueta o-rv">05 · Uso</span>
+      <h2 class="d2 o-rv o-rv-d1">Tres etiquetas y ya está.</h2>
+    </div>
+    <div class="codigo o-glass o-rv o-rv-d1"><pre><code>&lt;link rel="stylesheet" href="src/ocean.css"&gt;
+&lt;script src="src/ocean-motion.js"&gt;&lt;/script&gt;
+&lt;script src="src/ocean-sound.js"&gt;&lt;/script&gt;
+&lt;script src="src/ocean-ui.js"&gt;&lt;/script&gt;
+&lt;script&gt;OceanUI.iniciar();&lt;/script&gt;
+
+&lt;!-- superficies --&gt;
+&lt;div class="o-glass o-glass--vivo" data-o-tilt="8"&gt;…&lt;/div&gt;
+
+&lt;!-- entradas por scroll --&gt;
+&lt;h2 class="o-rv"&gt;Aparece al entrar&lt;/h2&gt;
+&lt;div data-o-esc="70"&gt;&lt;i class="o-rv"&gt;&lt;/i&gt;&lt;i class="o-rv"&gt;&lt;/i&gt;&lt;/div&gt;
+
+&lt;!-- componentes --&gt;
+&lt;ocean-dial min="16" max="30" valor="24" unidad="°C" muescas="28"&gt;&lt;/ocean-dial&gt;
+&lt;ocean-isla id="isla" estado="compacta"&gt;&lt;/ocean-isla&gt;
+
+&lt;script&gt;
+  isla.mostrar({ icono:"✓", titulo:"Pedido enviado", detalle:"Llega el martes" });
+  OceanSound.reproducir("bien");
+&lt;/script&gt;</code></pre></div>
+
+    <div class="rejilla3" style="margin-top:30px" data-o-esc="80">
+      <div class="tarj o-glass o-rv"><div><h3>Sin compilación</h3>
+        <p>Archivos planos. Se copian a cualquier proyecto —WordPress, Next.js, un HTML suelto— y funcionan.</p></div></div>
+      <div class="tarj o-glass o-rv"><div><h3>Accesible por defecto</h3>
+        <p>Roles y valores ARIA, foco visible, manejo por teclado y respeto de <code>prefers-reduced-motion</code> y alto contraste.</p></div></div>
+      <div class="tarj o-glass o-rv"><div><h3>Un solo bucle</h3>
+        <p>Todas las animaciones comparten un <code>requestAnimationFrame</code> y un listener de scroll pasivo.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<footer class="pie">
+  <div class="wrap">
+    <div class="pie-fila">
+      <span class="o-mono">Ocean UI · Ocean Industries</span>
+      <span class="o-mono">Cali · Bogotá · Miami</span>
+    </div>
+  </div>
+</footer>
+
+<script src="src/ocean-motion.js"></script>
+<script src="src/ocean-sound.js"></script>
+<script src="src/ocean-ui.js"></script>
+<script src="demo.js"></script>
+</body>
+</html>
