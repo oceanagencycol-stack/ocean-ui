@@ -133,7 +133,6 @@ class OceanOnda extends HTMLElement {
   get n() { return parseInt(this.getAttribute("barras") || "28", 10); }
   get modo() { return this.getAttribute("modo") || "progreso"; }
   connectedCallback() { this.construir(); this.pintar(); this.animar(); }
-  disconnectedCallback() { cancelAnimationFrame(this._t); }
   attributeChangedCallback(n) {
     if (!this.shadowRoot.querySelector(".env")) return;
     if (n === "barras") this.construir();
@@ -166,11 +165,26 @@ class OceanOnda extends HTMLElement {
     });
   }
   animar() {
-    cancelAnimationFrame(this._t);
+    if (this._quitar) { this._quitar(); this._quitar = null; }
     if (this.modo !== "vivo" || M.reducido) return;
+    // Va en el bucle compartido, no en un rAF propio: un ecualizador por
+    // componente multiplica los bucles. Y se detiene si la pestaña está
+    // oculta o el elemento salió de pantalla — animar lo invisible es gastar
+    // batería del usuario a cambio de nada.
     let f = 0;
-    const paso = () => { f += 0.12; this.pintar(f); this._t = requestAnimationFrame(paso); };
-    this._t = requestAnimationFrame(paso);
+    this._visible = true;
+    this._io = this._io || new IntersectionObserver(
+      es => { this._visible = es[0].isIntersecting; }, { threshold: 0 });
+    this._io.observe(this);
+    this._quitar = agregar(dt => {
+      if (document.hidden || !this._visible) return;
+      f += dt * 7.2;
+      this.pintar(f);
+    });
+  }
+  disconnectedCallback() {
+    if (this._quitar) { this._quitar(); this._quitar = null; }
+    if (this._io) this._io.disconnect();
   }
 }
 customElements.define("ocean-onda", OceanOnda);
@@ -389,17 +403,20 @@ class OceanArco extends HTMLElement {
     r.querySelector(".det").textContent = this.getAttribute("detalle") || "";
     const v = util.limitar(parseFloat(this.getAttribute("valor") || 0) / 100, 0, 1);
     const path = r.querySelector(".a");
-    const L = path.getTotalLength ? path.getTotalLength() : 340;
+    // getTotalLength lanza si el nodo no está en el layout todavía
+    let L = 340;
+    try { if (path.getTotalLength) L = path.getTotalLength() || 340; } catch (e) {}
     path.setAttribute("stroke-dasharray", L.toFixed(1));
     path.setAttribute("stroke-dashoffset", (L * (1 - v)).toFixed(1));
     // el marcador viaja por la misma curva: nada de trigonometría aproximada
-    if (path.getPointAtLength) {
+    try {
+      if (!path.getPointAtLength) throw 0;
       const pt = path.getPointAtLength(L * v);
       const m = r.querySelector(".m");
       m.setAttribute("cx", pt.x.toFixed(1)); m.setAttribute("cy", pt.y.toFixed(1));
       r.querySelector(".cono").setAttribute("d",
         `M${pt.x.toFixed(1)},${pt.y.toFixed(1)} L${(pt.x - 40).toFixed(1)},96 L${(pt.x + 40).toFixed(1)},96 Z`);
-    }
+    } catch (e) { /* el marcador se coloca en el siguiente pintado */ }
   }
 }
 customElements.define("ocean-arco", OceanArco);
@@ -501,6 +518,7 @@ class OceanBorde extends HTMLElement {
     agregar(dt => { this._s.paso(dt); this.pintar();
       if (this._s.quieto) { this._corriendo = false; return false; } });
   }
+  disconnectedCallback() { clearTimeout(this._t); }
   abrir()  { this.setAttribute("abierto", ""); S.reproducir("abrir");  return this; }
   cerrar() { this.removeAttribute("abierto");  S.reproducir("cerrar"); return this; }
   /** Aparece, se queda un momento y se retira sola. */

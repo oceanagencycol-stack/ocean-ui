@@ -284,6 +284,7 @@ class OceanAcceso extends HTMLElement {
     S.reproducir("mal"); util.vibrar([28, 50, 28]);
     this.dispatchEvent(new CustomEvent("ocean:acceso-error", { bubbles: true, detail: { mensaje: msg } }));
   }
+  disconnectedCallback() { clearTimeout(this._tEsc); }
   reiniciar() {
     this.estado = "reposo"; this.mensaje("");
     this.shadowRoot.querySelector(".boton").disabled = false;

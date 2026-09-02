@@ -122,6 +122,25 @@ imagen, cero peticiones de red.
 `of-rayado` · `of-halo` · `of-vineta` · `of-cono`, más cuatro recetas apiladas:
 `of-noche`, `of-taller`, `of-campo`, `of-brasa`.
 
+### Escena (`ocean-escena.js` + `ocean-escena.css`)
+Las técnicas que se repiten en 23 sitios premiados de Awwwards 2024–2026, reconstruidas
+sin dependencias.
+
+| Técnica | Se activa con | Frecuencia en la élite |
+|---|---|---|
+| Split por líneas reales | `data-o-lineas` | 8 / 23 |
+| Tema que muta por sección | `data-o-tema-bg` + `data-o-tema-fg` | Lando Norris, Terminal |
+| Escena por scroll (sticky) | `data-o-escena="280"` → expone `--o-esc-prog` | Son Daven, Aardvark |
+| Secuencia de imágenes en canvas | `data-o-secuencia="f-{n}.webp"` | Aardvark, Oryzo |
+| Cortina de transición | `data-o-cortina` en enlaces | HOBRO, Squarespace |
+| Cursor con `mix-blend-mode` | `OceanEscena.cursor()` | 8 / 23 |
+| Preloader con identidad | `OceanEscena.preloader({marca})` | 15 / 23 |
+| Marquee | `data-o-marquee="34s"` | 6 / 23 |
+| View Transitions con fallback | `data-o-transicion` | 6 / 23 |
+
+**La regla que ninguna técnica reemplaza:** una firma por producto, el resto quieto.
+Ocho de los 23 premiados usan cinco o más a la vez y se vuelven indistinguibles.
+
 ### Sonido (`ocean-sound.js`)
 Doce sonidos sintetizados con osciladores y ruido filtrado: `roce`, `toque`, `muesca`,
 `abrir`, `cerrar`, `bien`, `mal`, `aviso`, `paso`, `morph`, `desliz`, `tic`, `himno`.
@@ -146,10 +165,28 @@ sistema pide movimiento reducido.
 - El estado inicial de los reveals está en CSS, no en JS: si el JavaScript falla, la página
   se ve completa igual.
 
+## Garantías
+
+Verificado en las cuatro páginas, en escritorio y a 390 px:
+
+- **La página se ve completa sin JavaScript.** Los estados iniciales viven detrás de
+  `html.o-js`. De 23 sitios premiados, 3 muestran página vacía sin JS.
+- **Cero elementos sin revelar tras un salto de scroll.** Red de seguridad para el caso
+  en que IntersectionObserver reporta ratio 0 → 0.
+- **Cero fugas.** 600 componentes montados y desmontados en bucle sin supervivientes.
+  Un solo `requestAnimationFrame` compartido, que se pausa con la pestaña oculta.
+- **Cero `id` duplicados**, denunciados en consola fuera de producción.
+- **`prefers-reduced-motion` con estado final = estado inicial**: nada oculto, nada
+  moviéndose.
+
 ## Documentación
 
-[`docs/ANATOMIA.md`](docs/ANATOMIA.md) — ingeniería inversa de las referencias que
-originaron cada componente y el porqué de cada decisión.
+- [`docs/ANATOMIA.md`](docs/ANATOMIA.md) — ingeniería inversa de cada referencia y el
+  porqué de cada decisión, incluidos los fallos encontrados construyéndola.
+- [`docs/AUTO-JURADO.md`](docs/AUTO-JURADO.md) — checklist con la ponderación oficial de
+  Awwwards y los umbrales Ocean. Si Usability o Accessibility quedan bajo 8, no se entrega.
+- [`SKILL.md`](SKILL.md) — para que Cowork y Claude Code usen la biblioteca sin
+  reaprenderla en cada sesión.
 
 ## Demostración
 
@@ -159,6 +196,8 @@ originaron cada componente y el porqué de cada decisión.
   completo con registro de estados.
 - `tipografia.html` — escala con su tracking, las seis voces intercambiables, los nueve
   tratamientos de capa y los doce fondos.
+- `escena.html` — split por líneas, tema que muta, escena sticky de 280 svh, cortina,
+  preloader y cursor.
 
 ---
 

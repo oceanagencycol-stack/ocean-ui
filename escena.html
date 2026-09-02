@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es" data-ot-voz="editorial">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F4F1EA">
+<title>Escena — Ocean UI</title>
+<meta name="description" content="Split por líneas reales, tema que muta por sección, cortinas, cursor con mezcla, preloader con identidad, escenas por scroll y secuencias. Las técnicas de Awwwards sin sus 4 MB.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/ocean.css">
+<link rel="stylesheet" href="src/ocean-tipografia.css">
+<link rel="stylesheet" href="src/ocean-fondos.css">
+<link rel="stylesheet" href="src/ocean-escena.css">
+<style>
+  :root{--o-pagina-bg:#F4F1EA;--o-pagina-fg:#141A22;--o-acento:#1F3FBF;--o-acento-2:#8BE67D}
+  html{overflow-x:clip}
+  body{margin:0;font-family:var(--ot-texto);-webkit-font-smoothing:antialiased;overflow-x:clip}
+  ::selection{background:var(--o-acento);color:#fff}
+  a{color:inherit;text-decoration:none}
+  code{font-family:var(--ot-dato);font-size:.84em;background:rgba(127,127,127,.14);padding:2px 6px;border-radius:5px}
+  :focus-visible{outline:2px solid var(--o-acento);outline-offset:3px;border-radius:6px}
+  .wrap{max-width:1280px;margin:0 auto;padding-inline:clamp(20px,4.4vw,64px)}
+  .sec{padding:clamp(72px,9vw,150px) 0;position:relative}
+  .cab{position:fixed;inset:0 0 auto;z-index:100;padding:16px 0;color:var(--o-pagina-fg);
+    transition:color var(--o-t-medio) var(--o-ease-cubic)}
+  .cab .fila{display:flex;justify-content:space-between;align-items:center}
+  .cab nav{display:flex;gap:clamp(12px,2vw,26px)}
+  .cab a{font-family:var(--ot-dato);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase}
+  .hero{min-height:100svh;display:grid;align-content:end;padding-bottom:clamp(40px,6vw,80px)}
+  .etq{display:inline-block;color:var(--o-acento);margin-bottom:16px}
+  .cabecera{margin-bottom:clamp(30px,4vw,56px);max-width:820px}
+  .cabecera .ot-entradilla{margin-top:20px;opacity:.7}
+  .tarj{border:1px solid rgba(127,127,127,.22);border-radius:22px;padding:clamp(20px,2.6vw,32px)}
+  .rejilla{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:16px}
+  .btns{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:9px;padding:13px 24px;border-radius:999px;
+    border:1px solid currentColor;background:none;color:inherit;font:inherit;font-weight:600;
+    font-size:.92rem;cursor:pointer;transition:transform var(--o-t-rapido) var(--o-ease-cubic),
+    background var(--o-t-rapido) ease,color var(--o-t-rapido) ease}
+  .btn:hover{transform:translateY(-2px)}
+  .btn--lleno{background:var(--o-acento);border-color:var(--o-acento);color:#fff}
+  .cifras{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:24px}
+  .cifra strong{display:block;font-family:var(--ot-display);font-size:clamp(2.6rem,5vw,4.6rem);
+    letter-spacing:-.045em;line-height:1;font-variant-numeric:tabular-nums}
+  .cifra span{display:block;margin-top:10px;opacity:.65;font-size:.9rem}
+  .escena-demo{--o-fondo:#0B1620}
+  .escena-demo .o-escena__fijo{background:var(--o-fondo);color:#fff;border-radius:0}
+  .planeta{width:min(46vw,420px);aspect-ratio:1;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#8BE67D,#1F3FBF 60%,#05070A 100%);
+    box-shadow:0 40px 120px rgba(31,63,191,.4);will-change:transform}
+  .escena-texto{position:absolute;left:clamp(20px,5vw,80px);bottom:clamp(28px,6vw,80px);max-width:22ch}
+  .marq span{font-family:var(--ot-display);font-size:clamp(1.4rem,3vw,2.4rem);font-weight:600;
+    letter-spacing:-.03em;opacity:.55}
+  .marq{padding:22px 0;border-block:1px solid rgba(127,127,127,.22)}
+  .pie{padding:40px 0;border-top:1px solid rgba(127,127,127,.22);opacity:.6}
+  .lista-tec{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:10px;margin-top:24px}
+  .lista-tec li{list-style:none;padding:12px 14px;border:1px solid rgba(127,127,127,.2);border-radius:12px;
+    font-size:.9rem;display:flex;justify-content:space-between;gap:10px}
+  .lista-tec b{font-family:var(--ot-dato);font-size:.7rem;opacity:.6;font-weight:500}
+</style>
+</head>
+<body class="o-pagina of-grano">
+
+<header class="cab">
+  <div class="wrap fila">
+    <a href="index.html">Ocean UI · escena</a>
+    <nav><a href="#tema">Tema</a><a href="#escena">Escena</a><a href="#tecnicas">Técnicas</a><a href="#jurado">Jurado</a></nav>
+  </div>
+</header>
+
+<!-- ============ HERO: split por líneas ============ -->
+<section class="hero wrap">
+  <span class="ot-etiqueta etq o-rv">23 sitios premiados, desarmados</span>
+  <h1 class="ot-portada" data-o-lineas>Craft de Site of the Month, con la accesibilidad que ellos no tienen.</h1>
+  <p class="ot-entradilla o-rv" style="margin-top:24px">Cada técnica de esta página es un atributo en el HTML. El contenido declara qué animación tiene; un solo módulo decide cómo. Sin JavaScript, la página se ve completa igual.</p>
+  <div class="btns o-rv" style="margin-top:28px">
+    <span data-o-iman="0.4"><a class="btn btn--lleno" href="#tecnicas" data-o-cursor="ver">Ver las técnicas</a></span>
+    <span data-o-iman="0.4"><a class="btn" href="#jurado">El checklist</a></span>
+  </div>
+</section>
+
+<div class="marq" data-o-marquee="34s" aria-hidden="true">
+  <div class="o-marquee__pista marq">
+    <span>Split por líneas</span><span>Tema por sección</span><span>Cortinas</span>
+    <span>Cursor</span><span>Preloader</span><span>Escena sticky</span><span>Secuencia</span>
+  </div>
+</div>
+
+<!-- ============ TEMA QUE MUTA ============ -->
+<section class="sec" id="tema" data-o-tema-bg="#0B1620" data-o-tema-fg="#F4F1EA" data-o-tema="oscuro">
+  <div class="wrap">
+    <div class="cabecera">
+      <span class="ot-etiqueta etq o-rv" style="color:var(--o-acento-2)">Tema por sección · Lando Norris</span>
+      <h2 class="ot-d1 o-rv">Esta sección cambió el fondo de toda la página al entrar.</h2>
+      <p class="ot-entradilla o-rv">No es un fondo oscuro sobre uno claro: <code>--o-pagina-bg</code> y <code>--o-pagina-fg</code> interpolan en <code>:root</code> y hasta el <code>theme-color</code> del navegador acompaña. Al salir, una sección con <code>data-o-tema-base</code> devuelve al origen.</p>
+    </div>
+    <div class="cifras" data-o-esc="90">
+      <div class="cifra o-rv"><strong data-o-contador="31"></strong><span>fichas de Awwwards parseadas</span></div>
+      <div class="cifra o-rv"><strong data-o-contador="23"></strong><span>sitios desarmados hasta el CSS</span></div>
+      <div class="cifra o-rv"><strong data-o-contador="8.18" data-o-decimales="2"></strong><span>score del Site of the Year 2025</span></div>
+      <div class="cifra o-rv"><strong data-o-contador="6.86" data-o-decimales="2"></strong><span>accesibilidad promedio de la élite</span></div>
+    </div>
+    <p class="ot-pie o-rv" style="margin-top:28px;opacity:.55">Los contadores usan <code>Intl.NumberFormat</code> con locale y decimales, <code>tabular-nums</code> para que no bailen y easeOutExpo, la curva de Terminal Industries.</p>
+  </div>
+</section>
+
+<!-- ============ ESCENA STICKY ============ -->
+<section class="o-escena escena-demo" id="escena" data-o-escena="280" data-o-tema-base>
+  <div class="o-escena__fijo">
+    <div class="planeta o-esc-zoom"></div>
+    <div class="escena-texto">
+      <span class="ot-etiqueta" style="color:var(--o-acento-2)">Escena por scroll · Son Daven, Aardvark</span>
+      <h2 class="ot-d2 o-esc-aparece" style="margin-top:12px;color:#fff">280 svh de recorrido, un solo objeto que responde.</h2>
+      <p class="ot-pie" style="opacity:.6;margin-top:12px;color:#fff">El progreso 0→1 vive en <code style="background:rgba(255,255,255,.14)">--o-esc-prog</code>. El CSS lo consume; el JS no tiene que dibujar nada.</p>
+      <p class="ot-dato" id="progLabel" style="margin-top:14px;color:var(--o-acento-2)">progreso 0.000</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TÉCNICAS ============ -->
+<section class="sec" id="tecnicas">
+  <div class="wrap">
+    <div class="cabecera">
+      <span class="ot-etiqueta etq o-rv">Inventario</span>
+      <h2 class="ot-d1 o-rv">Las piezas están. El criterio es suyo.</h2>
+      <p class="ot-entradilla o-rv">Ocho de los 23 premiados usan cinco o más de estas a la vez y se vuelven indistinguibles entre sí. La regla de la Forja se mantiene: <strong>una firma por producto, el resto quieto.</strong></p>
+    </div>
+    <ul class="lista-tec o-rv" data-o-esc="50">
+      <li class="o-rv">Split por líneas <b>8/23</b></li>
+      <li class="o-rv">Preloader con identidad <b>15/23</b></li>
+      <li class="o-rv">Smooth scroll (Lenis) <b>13/23</b></li>
+      <li class="o-rv">Cursor con mezcla <b>8/23</b></li>
+      <li class="o-rv">Parallax leve <b>8/23</b></li>
+      <li class="o-rv">Marquee <b>6/23</b></li>
+      <li class="o-rv">View Transitions <b>6/23</b></li>
+      <li class="o-rv">Grano <b>5/23</b></li>
+      <li class="o-rv">Tema por sección <b>Lando, Terminal</b></li>
+      <li class="o-rv">Escena sticky <b>Son Daven, Aardvark</b></li>
+      <li class="o-rv">Secuencia en canvas <b>Aardvark, Oryzo</b></li>
+      <li class="o-rv">Cortinas <b>HOBRO, Squarespace</b></li>
+    </ul>
+    <div class="btns" style="margin-top:30px">
+      <button class="btn" id="btnCortina" data-o-cursor="ir">Probar la cortina</button>
+      <button class="btn" id="btnPreloader">Probar el preloader</button>
+      <button class="btn" id="btnCursor">Activar el cursor</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ JURADO ============ -->
+<section class="sec" id="jurado" style="padding-top:0">
+  <div class="wrap">
+    <div class="tarj of-reticula--claro of-reticula">
+      <span class="ot-etiqueta etq o-rv">Auto-jurado</span>
+      <h2 class="ot-d2 o-rv" style="margin:14px 0 18px">Design 40 · Usability 30 · Creativity 20 · Content 10.</h2>
+      <p class="ot-cuerpo o-rv" style="opacity:.75">Es la ponderación oficial del score. La élite saca 7.9 en Creativity y 6.86 en Accesibilidad: <strong>nadie en el top hace accesibilidad bien.</strong> El estándar Ocean es la creatividad de un Site of the Month con la accesibilidad, el peso y el SEO que ellos no tienen. El checklist completo, con umbrales, está en <code>docs/AUTO-JURADO.md</code>.</p>
+      <div class="rejilla o-rv" style="margin-top:24px" data-o-esc="80">
+        <div class="tarj o-rv"><b class="ot-dato" style="color:var(--o-acento)">Accesibilidad ≥ 8</b><p class="ot-pie" style="margin:8px 0 0;opacity:.7">La élite: 6.0–7.4. Foco visible, AA, reduced-motion con estado final = inicial.</p></div>
+        <div class="tarj o-rv"><b class="ot-dato" style="color:var(--o-acento)">HTML &lt; 300 KB</b><p class="ot-pie" style="margin:8px 0 0;opacity:.7">La élite: 1.4–4 MB. Floema pesa 4 MB de HTML.</p></div>
+        <div class="tarj o-rv"><b class="ot-dato" style="color:var(--o-acento)">Contenido sin JS</b><p class="ot-pie" style="margin:8px 0 0;opacity:.7">Sharplink muestra como H1 "This website requires JavaScript".</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap pie">
+  <span class="ot-etiqueta">Ocean UI · escena · <a href="index.html">volver al núcleo</a></span>
+</footer>
+
+<script src="src/ocean-motion.js"></script>
+<script src="src/ocean-sound.js"></script>
+<script src="src/ocean-texto.js"></script>
+<script src="src/ocean-escena.js"></script>
+<script>
+  OceanMotion.iniciar();
+  OceanTexto.iniciar();
+  OceanEscena.iniciar();
+  document.querySelector('#escena').addEventListener('ocean:escena', e => {
+    document.querySelector('#progLabel').textContent = 'progreso ' + e.detail.progreso.toFixed(3);
+  });
+  document.querySelector('#btnCortina').addEventListener('click', () => {
+    OceanEscena.cortina.cerrar().then(() => setTimeout(() => OceanEscena.cortina.abrir(), 500));
+  });
+  document.querySelector('#btnPreloader').addEventListener('click', () => {
+    OceanEscena.preloader({ marca: 'OCEAN', minimo: 1400, maximo: 2200 });
+  });
+  document.querySelector('#btnCursor').addEventListener('click', e => {
+    if (document.querySelector('.o-cursor')) return;
+    OceanEscena.cursor();
+    e.target.textContent = 'Cursor activo';
+  });
+</script>
+</body>
+</html>

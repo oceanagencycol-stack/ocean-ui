@@ -7,6 +7,10 @@
 "use strict";
 
 const reducido = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const hoverFino = matchMedia("(hover: hover) and (pointer: fine)").matches;
+// Los estados iniciales de los reveals solo existen con esta clase presente:
+// sin JS la página se ve completa. Se añade antes de cualquier otra cosa.
+document.documentElement.classList.add("o-js");
 
 /* ------------------------------------------------------------------ resorte
    Integrador semi-implícito de Euler. Es lo que da la sensación de material:
@@ -48,9 +52,15 @@ function bucle(ahora) {
 }
 function agregar(t) {
   tareas.add(t);
-  if (!corriendo) { corriendo = true; requestAnimationFrame(bucle); }
+  if (!corriendo && !document.hidden) { corriendo = true; requestAnimationFrame(bucle); }
   return () => tareas.delete(t);
 }
+// Con la pestaña oculta el navegador ya frena rAF, pero al volver el primer dt
+// sería enorme y los resortes darían un salto. Se reinicia el reloj.
+document.addEventListener("visibilitychange", () => {
+  ultimo = 0;
+  if (!document.hidden && tareas.size && !corriendo) { corriendo = true; requestAnimationFrame(bucle); }
+});
 
 /* ------------------------------------------------------------------ scroll */
 const oyentesScroll = new Set();
@@ -66,11 +76,41 @@ addEventListener("scroll", () => {
 }, { passive: true });
 
 /* ----------------------------------------------------------------- reveals */
+const pendientes = new Set();
+let ioReveal = null, barridoPendiente = false;
+
+function revelar(el) {
+  if (!pendientes.has(el)) return;
+  pendientes.delete(el);
+  el.classList.add("o-vis");
+  if (ioReveal) ioReveal.unobserve(el);
+}
+/*  Red de seguridad. Un salto de scroll (ancla, scrollTo, recarga a mitad de
+    página) puede cruzar un elemento sin que IntersectionObserver reporte
+    cambio: ratio 0 → 0. Ese contenido quedaría invisible para siempre. En
+    cada scroll se revela lo que ya quedó por encima del viewport.          */
+function barrer() {
+  barridoPendiente = false;
+  for (const el of pendientes) {
+    if (el.getBoundingClientRect().bottom < 0) revelar(el);
+  }
+}
+addEventListener("scroll", () => {
+  if (!barridoPendiente && pendientes.size) { barridoPendiente = true; requestAnimationFrame(barrer); }
+}, { passive: true });
+
 function reveals(raiz = document) {
-  const io = new IntersectionObserver((es) => {
-    es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("o-vis"); io.unobserve(e.target); } });
-  }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
-  raiz.querySelectorAll(".o-rv:not(.o-vis)").forEach(el => io.observe(el));
+  if (!ioReveal) {
+    ioReveal = new IntersectionObserver((es) => {
+      es.forEach(e => {
+        // isIntersecting O ya pasó por encima: cubre el caso de entrar con scroll alto
+        if (e.isIntersecting || e.boundingClientRect.bottom < 0) revelar(e.target);
+      });
+    }, { threshold: 0.05, rootMargin: "0px 0px -10% 0px" });
+  }
+  const io = ioReveal;
+  raiz.querySelectorAll(".o-rv:not(.o-vis)").forEach(el => { pendientes.add(el); io.observe(el); });
+  requestAnimationFrame(barrer);
 
   // escalonado automático: los hijos de un [data-o-esc] heredan su índice
   raiz.querySelectorAll("[data-o-esc]").forEach(cont => {
@@ -123,7 +163,7 @@ function parallax(raiz = document) {
 /* --------------------------------------------------------------- magnético
    El elemento persigue al puntero con resorte. Al salir vuelve a cero.     */
 function magnetico(el, { fuerza = 0.32, radio = 110, rigidez = 190, amortiguacion = 18 } = {}) {
-  if (reducido) return () => {};
+  if (reducido || !hoverFino) return () => {};        // en táctil no hay puntero que perseguir
   const sx = new Resorte({ rigidez, amortiguacion });
   const sy = new Resorte({ rigidez, amortiguacion });
   let activo = false, quitar = null;
@@ -154,7 +194,7 @@ function magnetico(el, { fuerza = 0.32, radio = 110, rigidez = 190, amortiguacio
 
 /* -------------------------------------------------------------------- tilt */
 function tilt(el, { max = 9, escala = 1.02, rigidez = 210, amortiguacion = 20 } = {}) {
-  if (reducido) return () => {};
+  if (reducido || !hoverFino) return () => {};
   const rx = new Resorte({ rigidez, amortiguacion });
   const ry = new Resorte({ rigidez, amortiguacion });
   const s = new Resorte({ desde: 1, rigidez, amortiguacion });
@@ -190,13 +230,19 @@ function luzViva(raiz = document) {
 }
 
 /* ------------------------------------------------------------------ contador */
-function contador(el, { hasta, duracion = 1400, formato = n => Math.round(n).toLocaleString("es-CO") } = {}) {
+function contador(el, { hasta, duracion = 1400, decimales, locale, formato } = {}) {
   const fin = hasta != null ? hasta : parseFloat(el.dataset.oContador || "0");
-  if (reducido) { el.textContent = formato(fin); return; }
+  const dec = decimales != null ? decimales : parseInt(el.dataset.oDecimales || "0", 10);
+  const loc = locale || el.dataset.oLocale || "es-CO";
+  const fmt = formato || (n => new Intl.NumberFormat(loc,
+    { minimumFractionDigits: dec, maximumFractionDigits: dec }).format(n));
+  if (reducido || isNaN(fin)) { el.textContent = fmt(fin); return; }
+  el.style.fontVariantNumeric = "tabular-nums";       // que las cifras no bailen
   const t0 = performance.now();
+  const expo = t => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));   // easeOutExpo
   agregar((_, ahora) => {
     const k = Math.min(1, (ahora - t0) / duracion);
-    el.textContent = formato(fin * (1 - Math.pow(1 - k, 3)));
+    el.textContent = fmt(fin * expo(k));
     return k < 1;
   });
 }
@@ -272,6 +318,6 @@ function iniciar(raiz = document) {
 global.OceanMotion = {
   Resorte, agregar, oyentesScroll, reveals, porPalabras, parallax,
   magnetico, tilt, luzViva, contador, contadores, progreso, util, iniciar, reducido,
-  avisarIdsDuplicados,
+  avisarIdsDuplicados, hoverFino, revelar,
 };
 })(window);

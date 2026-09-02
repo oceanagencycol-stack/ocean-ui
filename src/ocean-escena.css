@@ -1,0 +1,102 @@
+/* =========================================================================
+   OCEAN ESCENA — estilos
+   Acompaña a ocean-escena.js. Todo lo que aquí se mueve responde a los
+   tokens de ocean.css (easings del canon, duraciones, escalonado).
+   ========================================================================= */
+
+/* ------------------------------------------------- tema que muta por sección
+   El :root expone --o-pagina-bg/fg; el cuerpo los usa y transiciona.       */
+:root{--o-pagina-bg:#fff;--o-pagina-fg:#0A0E14}
+.o-pagina{background:var(--o-pagina-bg);color:var(--o-pagina-fg);
+  transition:background-color var(--o-t-medio) var(--o-ease-cubic), color var(--o-t-medio) var(--o-ease-cubic)}
+
+/* ------------------------------------------------------ split por líneas */
+.o-linea{display:block;overflow:hidden;
+  /* el overflow corta descendentes; se compensa con padding que no altera la caja */
+  padding-bottom:.08em;margin-bottom:-.08em}
+.o-linea__in{display:block;transform:translateY(110%);
+  transition:transform var(--o-t-cine) var(--o-ease);transition-delay:var(--o-retardo,0ms)}
+.o-vis .o-linea__in{transform:none}
+/* sin JS o con movimiento reducido las líneas están en su sitio */
+html:not(.o-js) .o-linea__in{transform:none}
+
+/* --------------------------------------------------------------- cortina */
+.o-cortina{position:fixed;inset:0;z-index:9000;pointer-events:none;
+  background:var(--o-cortina-bg,var(--o-tinta,#0A0E14));
+  transform:scaleY(0);transform-origin:bottom}
+.o-cortina--cerrando{transform:scaleY(1);transform-origin:bottom;
+  transition:transform calc(var(--o-t-cine) * .55) var(--o-ease-io)}
+.o-cortina--cerrada{transform:scaleY(1);pointer-events:auto}
+.o-cortina--abriendo{transform:scaleY(0);transform-origin:top;
+  transition:transform calc(var(--o-t-cine) * .55) var(--o-ease-io)}
+
+/* ---------------------------------------------------------------- cursor */
+.o-cursor{position:fixed;left:0;top:0;z-index:9500;pointer-events:none;
+  width:var(--o-cursor-tam,14px);height:var(--o-cursor-tam,14px);border-radius:50%;
+  background:#fff;mix-blend-mode:difference;opacity:0;
+  transition:opacity var(--o-t-rapido) ease, width var(--o-t-medio) var(--o-ease),
+             height var(--o-t-medio) var(--o-ease);
+  display:grid;place-items:center;will-change:transform}
+.o-cursor--vivo{opacity:1}
+.o-cursor--sobre{width:calc(var(--o-cursor-tam,14px) * var(--o-cursor-crecer,4.2));
+  height:calc(var(--o-cursor-tam,14px) * var(--o-cursor-crecer,4.2))}
+.o-cursor[data-texto]::after{content:attr(data-texto);font:600 .62rem/1 var(--o-mono,monospace);
+  letter-spacing:.1em;text-transform:uppercase;color:#000;mix-blend-mode:normal}
+.o-con-cursor,.o-con-cursor a,.o-con-cursor button{cursor:none}
+@media(hover:none){.o-cursor{display:none}}
+
+/* ------------------------------------------------------------- preloader */
+.o-cargando{overflow:hidden}
+.o-preloader{position:fixed;inset:0;z-index:9800;background:var(--o-preloader-bg,var(--o-tinta,#0A0E14));
+  color:var(--o-preloader-fg,#fff);display:grid;place-items:center;
+  transition:transform calc(var(--o-t-cine) * .7) var(--o-ease),opacity calc(var(--o-t-cine) * .5) ease}
+.o-preloader--fuera{transform:translateY(-100%);opacity:.98}
+.o-preloader__marca{position:absolute;top:24px;left:24px;font:600 .8rem/1 var(--o-mono,monospace);
+  letter-spacing:.14em;text-transform:uppercase;opacity:.7}
+.o-preloader__num{font:500 clamp(4rem,14vw,11rem)/1 var(--o-sans,system-ui);
+  letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+.o-preloader__barra{position:absolute;left:24px;right:24px;bottom:24px;height:2px;
+  background:rgba(255,255,255,.15);overflow:hidden}
+.o-preloader__barra i{display:block;height:100%;background:currentColor;
+  transform:scaleX(0);transform-origin:left;transition:transform .12s linear}
+
+/* ------------------------------------------------------- escena por scroll */
+.o-escena{position:relative}
+.o-escena__fijo{position:sticky;top:0;height:100svh;overflow:hidden;
+  display:grid;place-items:center}
+/* ejemplos de uso de --o-esc-prog desde CSS, sin JS del producto.
+   Solo con html.o-js: sin script no hay progreso que medir y el contenido
+   debe verse completo desde el principio.                                  */
+.o-js .o-esc-zoom{transform:scale(calc(1 + var(--o-esc-prog,0) * .35))}
+.o-js .o-esc-aparece{opacity:clamp(0,calc(var(--o-esc-prog,0) * 3 - .6),1)}
+.o-js .o-esc-sube{transform:translateY(calc((1 - var(--o-esc-prog,0)) * 40vh))}
+
+/* --------------------------------------------------------------- marquee */
+[data-o-marquee]{overflow:hidden;display:flex;gap:var(--o-marquee-gap,3rem);
+  mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.o-marquee__pista{display:flex;gap:var(--o-marquee-gap,3rem);flex:none;white-space:nowrap;
+  animation:o-marquee var(--o-marquee-dur,40s) linear infinite}
+[data-o-marquee]:hover .o-marquee__pista{animation-play-state:paused}
+@keyframes o-marquee{to{transform:translateX(calc(-100% - var(--o-marquee-gap,3rem)))}}
+
+/* ------------------------------------------------------ view transitions */
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:o-vt-sale calc(var(--o-t-cine) * .5) var(--o-ease-io) both}
+::view-transition-new(root){animation:o-vt-entra calc(var(--o-t-cine) * .6) var(--o-ease) both}
+@keyframes o-vt-sale{to{opacity:0;transform:translateY(-12px)}}
+@keyframes o-vt-entra{from{opacity:0;transform:translateY(16px)}}
+
+/* ------------------------------------------ higiene que todos comparten */
+.o-escena__fijo img,.o-escena__fijo video,.o-escena__fijo canvas{max-width:100%;height:auto}
+[data-o-secuencia]{width:100%;height:auto;display:block}
+
+/* ---------------------------------------------------------- accesibilidad */
+@media(prefers-reduced-motion:reduce){
+  .o-linea__in{transform:none!important;transition:none}
+  .o-cortina{transition:none}
+  .o-preloader{display:none}
+  .o-marquee__pista{animation:none}
+  .o-esc-zoom,.o-esc-sube{transform:none}
+  .o-esc-aparece{opacity:1}
+  ::view-transition-old(root),::view-transition-new(root){animation:none}
+}

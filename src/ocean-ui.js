@@ -178,6 +178,7 @@ const DIAL_HOJA = soportaHojas ? css(DIAL_CSS) : null;
 
 class OceanDial extends HTMLElement {
   static get observedAttributes() { return ["valor", "min", "max", "etiqueta", "unidad", "color", "color2"]; }
+  disconnectedCallback() { if (this._soltar) this._soltar(); }
   constructor() {
     super();
     const r = this.attachShadow({ mode: "open" });
@@ -313,6 +314,7 @@ class OceanDial extends HTMLElement {
     };
     env.addEventListener("wheel", rueda, { passive: false });
     this.addEventListener("wheel", rueda, { passive: false });
+    this._soltar = () => { env.removeEventListener("wheel", rueda); this.removeEventListener("wheel", rueda); };
     this.addEventListener("keydown", e => {
       const g = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
       if (g) { e.preventDefault(); this.valor = this.valor + g * this.paso; S.reproducir("muesca"); }
@@ -433,6 +435,7 @@ class OceanTira extends HTMLElement {
     return this;
   }
   detener() { clearInterval(this._t); this._s.a(0); this.correr(); S.reproducir("cerrar"); return this; }
+  disconnectedCallback() { clearInterval(this._t); }
 }
 customElements.define("ocean-tira", OceanTira);
 

@@ -516,3 +516,150 @@ Es cuatro líneas de código y ahorra horas de depuración a ciegas.
 ---
 
 *Ocean Industries · septiembre de 2026*
+
+---
+
+# Parte IV — La puesta en escena de Awwwards
+
+Cuarta tanda: 31 fichas oficiales de Awwwards 2024–2026 y el código de 23 de esos
+sitios, desarmado hasta el CSS. Lo que sigue es lo que se aprendió al comparar la
+biblioteca contra la élite, incluidos los cinco fallos propios que aparecieron.
+
+---
+
+## 17. El canon de easings
+
+No hay una curva "de Awwwards": hay un canon corto que se repite. Medido en 23 sitios:
+
+| Curva | Valor | Dónde aparece |
+|---|---|---|
+| easeOutExpo | `.19,1,.22,1` | Lando Norris, Floema, Terminal, Sharplink, Son Daven, ERA |
+| easeOutQuint | `.23,1,.32,1` | reveals suaves |
+| easeOutCirc | `.075,.82,.165,1` | frenadas largas |
+| in-out simétrico | `.76,0,.24,1` | The Fabric of the Land, para transiciones |
+| overshoot | `.34,1.56,.64,1` | Shopify, **solo** confirmaciones táctiles |
+| Material | `.4,0,.2,1` | micro-estados, **nunca** reveals |
+
+Duraciones: hover 100–300 ms, reveal 400–1000 ms, transición de página 500–1200 ms.
+Lando declara `--duration-default: .75s`; The Fabric of the Land tokeniza `--dur-s/m/l`.
+
+Ocean tenía `cubic-bezier(.16,1,.3,1)` como curva por defecto — cercana pero no la del
+canon. Ahora `--o-ease` es easeOutExpo y las otras cinco están nombradas.
+
+## 18. El gotcha de clip-path que no sale en ningún tutorial
+
+**Chrome calcula IntersectionObserver DESPUÉS de aplicar `clip-path`.** Un elemento con
+`clip-path: inset(0 0 100% 0)` reporta intersección cero y **nunca dispara su propio
+reveal**. Queda invisible para siempre.
+
+La solución es estructural, no un ajuste de umbral: el clip va en el **hijo** y se
+observa el **padre**.
+
+```css
+.o-js .o-rv--clip{opacity:1;transform:none}
+.o-js .o-rv--clip > *{clip-path:inset(0 0 100% 0)}
+.o-js .o-rv--clip.o-vis > *{clip-path:inset(0 0 0 0)}
+```
+
+## 19. La red de seguridad del scroll
+
+Un salto de scroll —ancla, `scrollTo`, recarga a mitad de página— puede cruzar un
+elemento sin que IntersectionObserver reporte cambio: ratio 0 → 0. Ese contenido
+**queda oculto para siempre**.
+
+Ocean revela ahora en cada scroll todo lo que ya quedó por encima del viewport:
+
+```js
+for (const el of pendientes) if (el.getBoundingClientRect().bottom < 0) revelar(el);
+```
+
+Verificado: saltar al final de cualquiera de los cuatro showcases deja **0 elementos sin
+revelar**.
+
+## 20. Progressive enhancement: la brecha real
+
+De 23 sitios premiados, **3 muestran página vacía sin JavaScript**. Sharplink llega a
+poner como H1: *"This website requires JavaScript"*. Y la accesibilidad de la élite
+promedia 6.86 sobre 10 — nunca pasa de 7.4.
+
+Ahí está la ventaja de Ocean, y no cuesta nada: los estados iniciales de los reveals
+viven detrás de `html.o-js`, que el propio script añade. Sin JavaScript, la página se ve
+completa. Verificado en las cuatro páginas: **0 elementos de contenido con `opacity: 0`**.
+
+La misma regla obligó a corregir `.o-esc-zoom`, `.o-esc-aparece` y `.o-esc-sube`, que
+dependen de `--o-esc-prog`: sin script no hay progreso que medir, así que ahora también
+van detrás de `.o-js`.
+
+## 21. Tema que muta por sección: dos trampas
+
+Lando Norris lleva `data-h-color-from` / `data-h-color-to` por sección y cambia el fondo
+de toda la página. Al reconstruirlo aparecieron dos fallos que no son evidentes:
+
+**a) El umbral no puede ser `threshold: 0.5`.** Una escena de 280 svh nunca ocupa la
+mitad del viewport, así que jamás dispara y el tema se queda pegado. La solución es
+observar una **línea central de 1 px**:
+
+```js
+{ threshold: 0, rootMargin: "-50% 0px -50% 0px" }
+```
+
+**b) El retorno a base no puede ser opt-in.** Marcar a mano cada sección con
+`data-o-tema-base` es una trampa: basta olvidar una para que el tema se quede pegado, y
+el fallo solo se ve bajando más allá de la sección temática. Ahora **toda sección que no
+declara tema devuelve al origen**, y el atributo solo sirve para forzarlo en un
+contenedor que no sea `<section>`.
+
+**c) El origen se lee del `<body>` computado, no de la variable CSS.** Si la variable no
+está declarada todavía, `getPropertyValue` devuelve cadena vacía y el retorno deja el
+fondo en `undefined`.
+
+## 22. Split por líneas: por qué no es split por palabras
+
+Es la técnica número uno de Awwwards: 8 de 23. Y casi todos los tutoriales la explican
+mal, partiendo por palabras.
+
+El proceso correcto: envolver cada palabra, **medir su `offsetTop` después de que carguen
+las fuentes**, agrupar las que comparten línea, y solo entonces envolver cada línea en un
+contenedor con `overflow: hidden`. Se recalcula al redimensionar, porque las líneas
+cambian.
+
+Dos detalles que se ven cuando faltan: `document.fonts.ready` antes de medir —si no, se
+mide con la fuente de respaldo y las líneas quedan mal— y compensar el `overflow` con
+`padding-bottom: .08em; margin-bottom: -.08em`, o el corte se come los descendentes.
+
+## 23. Higiene de bucles y timers
+
+Al auditar la biblioteca contra sí misma aparecieron cuatro fugas:
+
+1. **`<ocean-onda>` abría su propio `requestAnimationFrame`.** Un ecualizador por
+   componente multiplica los bucles. Ahora usa el bucle compartido **y se detiene si la
+   pestaña está oculta o el elemento salió de pantalla**: animar lo invisible es gastar
+   batería del usuario a cambio de nada.
+2. **`<ocean-tira>` dejaba su `setInterval` vivo al desmontarse.**
+3. **`<ocean-dial>` no soltaba el listener de `wheel` del host.**
+4. **`<ocean-borde>` y `<ocean-acceso>` dejaban timeouts huérfanos.**
+
+Todos tienen ahora `disconnectedCallback`. Y el bucle compartido reinicia su reloj en
+`visibilitychange`: al volver a la pestaña, el primer `dt` sería enorme y los resortes
+darían un salto.
+
+Prueba: **600 componentes montados y desmontados en bucle, cero errores, cero
+supervivientes.**
+
+## 24. El auto-jurado
+
+`docs/AUTO-JURADO.md` traduce la ponderación oficial —Design 40 %, Usability 30 %,
+Creativity 20 %, Content 10 %— en una lista de comprobación con umbrales.
+
+Los dos números que importan: la élite promedia **7.92 en Creativity** y **6.86 en
+Accessibility**. El estándar Ocean es la creatividad de un Site of the Month con la
+accesibilidad, el peso y el SEO que ellos no tienen. **Si Usability o Accessibility
+quedan bajo 8, no se entrega.**
+
+Y la regla que ninguna técnica reemplaza: **una firma por producto, el resto quieto.**
+Ocho de los 23 premiados usan cinco o más efectos a la vez —preloader, Lenis, split,
+marquee, cursor, grano, magnético, parallax— y se vuelven indistinguibles entre sí.
+
+---
+
+*Ocean Industries · 2 de septiembre de 2026*

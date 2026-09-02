@@ -29,15 +29,23 @@
   --o-r-xl:36px; --o-r-2xl:48px; --o-r-full:999px;
 
   /* --- movimiento. Duración y curva son parte del sistema. --- */
-  --o-t-inst:120ms;
-  --o-t-rapido:220ms;
-  --o-t-medio:380ms;
-  --o-t-lento:620ms;
-  --o-t-cine:980ms;
-  --o-ease:cubic-bezier(.16,1,.3,1);          /* salida suave, la de por defecto */
-  --o-ease-io:cubic-bezier(.65,0,.35,1);
-  --o-ease-resorte:cubic-bezier(.34,1.56,.64,1); /* rebote corto */
-  --o-ease-morph:cubic-bezier(.32,.72,0,1);   /* la curva del morphing de isla */
+  --o-t-inst:120ms;   /* micro-estado */
+  --o-t-rapido:240ms; /* hover */
+  --o-t-medio:400ms;  /* reveal corto (TFTL --dur-s) */
+  --o-t-lento:700ms;  /* reveal (TFTL --dur-m; Lando --duration-default .75s) */
+  --o-t-cine:1200ms;  /* escena, transición de página (TFTL --dur-l) */
+  --o-esc-paso:70ms;  /* escalonado entre hermanos */
+  /* Canon de easings, con la frecuencia medida en 23 sitios premiados (2024–26).
+     El de por defecto es easeOutExpo: es la firma de Awwwards, aparece en
+     Lando Norris, Floema, Terminal, Sharplink, Son Daven y ERA.              */
+  --o-ease:cubic-bezier(.19,1,.22,1);            /* easeOutExpo · reveals, entradas, página */
+  --o-ease-quint:cubic-bezier(.23,1,.32,1);      /* easeOutQuint · reveals suaves */
+  --o-ease-circ:cubic-bezier(.075,.82,.165,1);   /* easeOutCirc · frenada larga */
+  --o-ease-cubic:cubic-bezier(.215,.61,.355,1);  /* easeOutCubic · hover, micro */
+  --o-ease-io:cubic-bezier(.76,0,.24,1);         /* in-out simétrico (TFTL) · transiciones */
+  --o-ease-resorte:cubic-bezier(.34,1.56,.64,1); /* overshoot (Shopify) · SOLO confirmaciones táctiles */
+  --o-ease-morph:cubic-bezier(.32,.72,0,1);      /* Studio Freight / iOS · menús, sheets, isla */
+  --o-ease-micro:cubic-bezier(.4,0,.2,1);        /* Material · solo micro-estados, NUNCA reveals */
 
   /* --- color base neutro. Cada producto lo sobreescribe. --- */
   --o-tinta:#0A0E14;
@@ -53,6 +61,18 @@
   --o-texto-2:rgba(10,14,20,.62);
   --o-inverso:#F7F9FB;
   --o-inverso-2:rgba(247,249,251,.62);
+
+  /* Escalera alfa sobre la tinta: para bordes, separadores y texto secundario
+     sin inventar grises. Sharplink la usa como base de todo el sistema.      */
+  --o-tinta-rgb:10,14,20;
+  --o-tinta-05:rgba(var(--o-tinta-rgb),.05); --o-tinta-10:rgba(var(--o-tinta-rgb),.10);
+  --o-tinta-20:rgba(var(--o-tinta-rgb),.20); --o-tinta-40:rgba(var(--o-tinta-rgb),.40);
+  --o-tinta-60:rgba(var(--o-tinta-rgb),.60); --o-tinta-80:rgba(var(--o-tinta-rgb),.80);
+  /* Par on-color: cada acento declara el color del texto que va encima.
+     Dropbox Brand lo hace por tenant; aquí es la regla para todo Ocean.     */
+  --o-sobre-acento:#fff;
+  --o-sobre-acento-2:#0A0E14;
+  --o-sobre-ok:#04281A; --o-sobre-alerta:#2A1E00; --o-sobre-error:#2A0808;
 
   --o-sans:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
   --o-mono:'JetBrains Mono',ui-monospace,monospace;
@@ -114,23 +134,39 @@
 /* =============================================================== reveals */
 /*  Estado inicial declarado en CSS; ocean-motion solo añade .o-vis.
     Así la página nunca queda invisible si el JS falla.                */
-.o-rv{opacity:0;transform:translateY(24px);
-  transition:opacity var(--o-t-cine) var(--o-ease), transform var(--o-t-cine) var(--o-ease)}
-.o-rv.o-vis{opacity:1;transform:none}
-.o-rv--esc{transform:scale(.94)}
-.o-rv--izq{transform:translateX(-28px)}
-.o-rv--der{transform:translateX(28px)}
-.o-rv--clip{clip-path:inset(0 0 100% 0);opacity:1;transform:none;
-  transition:clip-path var(--o-t-cine) var(--o-ease)}
-.o-rv--clip.o-vis{clip-path:inset(0 0 0 0)}
-.o-rv--desenfoque{filter:blur(14px)}
-.o-rv--desenfoque.o-vis{filter:none;transition:opacity var(--o-t-cine) var(--o-ease),
-  transform var(--o-t-cine) var(--o-ease), filter var(--o-t-cine) var(--o-ease)}
-[data-o-esc]{transition-delay:calc(var(--o-i,0) * var(--o-esc,70ms))}
+/*  Los estados iniciales solo aplican cuando hay JS (html.o-js): si el script
+    no carga, la página se ve completa. Es lo que separa a Ocean de la élite
+    de Awwwards, donde 3 de 23 sitios muestran vacío sin JavaScript.        */
+.o-js .o-rv{opacity:0;transform:translateY(24px);
+  transition:opacity var(--o-t-lento) var(--o-ease), transform var(--o-t-lento) var(--o-ease);
+  transition-delay:var(--o-retardo,0ms)}
+.o-js .o-rv.o-vis{opacity:1;transform:none}
+.o-js .o-rv--esc{transform:scale(.94)}
+.o-js .o-rv--izq{transform:translateX(-28px)}
+.o-js .o-rv--der{transform:translateX(28px)}
+.o-js .o-rv--desenfoque{filter:blur(14px)}
+.o-js .o-rv--desenfoque.o-vis{filter:none;transition:opacity var(--o-t-lento) var(--o-ease),
+  transform var(--o-t-lento) var(--o-ease), filter var(--o-t-lento) var(--o-ease)}
+
+/*  CLIP: Chrome calcula IntersectionObserver DESPUÉS de aplicar clip-path.
+    Un elemento con clip-path: inset(0 0 100% 0) reporta intersección cero y
+    nunca dispara su propio reveal. Por eso el clip va en el HIJO y se observa
+    el padre. Medido construyendo el kit; no sale en ningún tutorial.       */
+.o-js .o-rv--clip{opacity:1;transform:none;filter:none}
+.o-js .o-rv--clip > *{clip-path:inset(0 0 100% 0);
+  transition:clip-path var(--o-t-cine) var(--o-ease);transition-delay:var(--o-retardo,0ms)}
+.o-js .o-rv--clip.o-vis > *{clip-path:inset(0 0 0 0)}
+
+/* retardos manuales, para cuando no hay un contenedor escalonado */
+.o-rv-d1{--o-retardo:calc(var(--o-esc-paso) * 1)}.o-rv-d2{--o-retardo:calc(var(--o-esc-paso) * 2)}
+.o-rv-d3{--o-retardo:calc(var(--o-esc-paso) * 3)}.o-rv-d4{--o-retardo:calc(var(--o-esc-paso) * 4)}
+.o-rv-d5{--o-retardo:calc(var(--o-esc-paso) * 5)}
+/* escalonado: los hijos de [data-o-esc] reciben --o-i desde JS */
+.o-js [data-o-esc] > .o-rv{--o-retardo:calc(var(--o-i,0) * var(--o-esc,var(--o-esc-paso)))}
 
 /* palabra por palabra */
 .o-pal{display:inline-block;overflow:hidden;vertical-align:bottom}
-.o-pal > span{display:inline-block;transform:translateY(108%);
+.o-js .o-pal > span{display:inline-block;transform:translateY(108%);
   transition:transform var(--o-t-cine) var(--o-ease)}
 .o-listo .o-pal > span{transform:none}
 
@@ -160,7 +196,7 @@
 
 @media(prefers-reduced-motion:reduce){
   :root{--o-t-inst:1ms;--o-t-rapido:1ms;--o-t-medio:1ms;--o-t-lento:1ms;--o-t-cine:1ms}
-  .o-rv{opacity:1;transform:none;filter:none;clip-path:none}
+  .o-js .o-rv,.o-js .o-rv--clip > *{opacity:1;transform:none;filter:none;clip-path:none;transition:none}
   .o-pal > span{transform:none}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important}
 }
